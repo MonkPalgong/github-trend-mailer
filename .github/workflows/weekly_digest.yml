@@ -2,14 +2,14 @@ name: GitHub Trend Email Digest
 
 on:
   schedule:
-    # 자동 생성됨: 한국 시간(KST) 기준 [SAT 09:00] 실행
-    - cron: '0 0 * * 6'
+    # 자동 생성됨: 한국 시간(KST) 기준 [MON,WED,FRI 06:00] 실행
+    - cron: '0 21 * * 0,2,4'
   workflow_dispatch:
     inputs:
       trending_window:
         description: '수집 기간 선택 (daily / weekly / monthly)'
         required: false
-        default: 'weekly'
+        default: 'daily'
 
 jobs:
   send-digest:

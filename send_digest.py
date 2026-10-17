@@ -489,19 +489,45 @@ def generate_newsletter_html(surge_list, work_list, fun_list, config):
 
 
 def send_email_if_configured(html_body, config):
+    recipient = os.environ.get("RECIPIENT_EMAIL", "kusari0215@naver.com").strip()
+    subject_prefix = config["email"].get("subject_prefix", "📬 [GitHub 트렌드 매거진]")
+    subject = f"{subject_prefix} {datetime.now().strftime('%Y-%m-%d')} 별점 급등 · 업무 · 개인 추천 리포트"
+
+    # 방법 1: 네이버 설정 변경 없이 Resend API 키 하나로 즉시 발송 (RESEND_API_KEY 설정 시)
+    resend_key = os.environ.get("RESEND_API_KEY", "").strip()
+    if resend_key:
+        payload = json.dumps({
+            "from": "GitHub Trend Digest <onboarding@resend.dev>",
+            "to": [recipient],
+            "subject": subject,
+            "html": html_body
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            "https://api.resend.com/emails",
+            data=payload,
+            headers={
+                "Authorization": f"Bearer {resend_key}",
+                "Content-Type": "application/json",
+                "User-Agent": "GitHubTrendMailer/3.0"
+            },
+            method="POST"
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            print(f"[SUCCESS] Resend API를 통해 이메일 발송 완료! -> {recipient} ({resp.status})")
+            return True
+
+    # 방법 2: 내 네이버/Gmail 계정(SMTP)으로 직접 발송
     smtp_host = os.environ.get("SMTP_HOST", "smtp.naver.com").strip()
     smtp_port = int(os.environ.get("SMTP_PORT", "587").strip())
     smtp_user = os.environ.get("SMTP_USER", "").strip()
     smtp_pass = os.environ.get("SMTP_PASSWORD", "").strip()
-    recipient = os.environ.get("RECIPIENT_EMAIL", "kusari0215@naver.com").strip()
 
     if not smtp_user or not smtp_pass:
-        print(f"[INFO] 수신처({recipient})가 지정되었으나 SMTP_USER / SMTP_PASSWORD가 아직 입력되지 않아 HTML 미리보기만 갱신했습니다.")
+        print(f"[INFO] 수신처({recipient})가 지정되었으나 발송 인증키(SMTP_PASSWORD 또는 RESEND_API_KEY)가 아직 입력되지 않아 HTML 미리보기만 갱신했습니다.")
         return False
 
     msg = MIMEMultipart("alternative")
-    subject_prefix = config["email"].get("subject_prefix", "📬 [GitHub 트렌드 매거진]")
-    msg["Subject"] = f"{subject_prefix} {datetime.now().strftime('%Y-%m-%d')} 별점 급등 · 업무 · 개인 추천 리포트"
+    msg["Subject"] = subject
     msg["From"] = smtp_user
     msg["To"] = recipient
     msg.attach(MIMEText(html_body, "html", "utf-8"))
@@ -511,7 +537,7 @@ def send_email_if_configured(html_body, config):
         server.login(smtp_user, smtp_pass)
         server.sendmail(smtp_user, [recipient], msg.as_string())
 
-    print(f"[SUCCESS] 이메일 발송 완료! -> {recipient}")
+    print(f"[SUCCESS] SMTP를 통해 이메일 발송 완료! -> {recipient}")
     return True
 
 

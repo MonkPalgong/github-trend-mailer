@@ -77,6 +77,7 @@ jobs:
 
       - name: Generate and Send GitHub Trend Digest
         env:
+          GITHUB_TOKEN: ${{{{ secrets.GITHUB_TOKEN }}}}
           RESEND_API_KEY: ${{{{ secrets.RESEND_API_KEY }}}}
           GEMINI_API_KEY: ${{{{ secrets.GEMINI_API_KEY }}}}
           SMTP_HOST: ${{{{ secrets.SMTP_HOST }}}}

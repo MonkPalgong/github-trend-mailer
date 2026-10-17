@@ -77,11 +77,13 @@ jobs:
 
       - name: Generate and Send GitHub Trend Digest
         env:
+          RESEND_API_KEY: ${{{{ secrets.RESEND_API_KEY }}}}
+          GEMINI_API_KEY: ${{{{ secrets.GEMINI_API_KEY }}}}
           SMTP_HOST: ${{{{ secrets.SMTP_HOST }}}}
           SMTP_PORT: ${{{{ secrets.SMTP_PORT }}}}
           SMTP_USER: ${{{{ secrets.SMTP_USER }}}}
           SMTP_PASSWORD: ${{{{ secrets.SMTP_PASSWORD }}}}
-          RECIPIENT_EMAIL: ${{{{ secrets.RECIPIENT_EMAIL }}}}
+          RECIPIENT_EMAIL: ${{{{ secrets.RECIPIENT_EMAIL || 'kusari0215@naver.com' }}}}
         run: python send_digest.py
 """
     with open(WORKFLOW_PATH, "w", encoding="utf-8") as f:

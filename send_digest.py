@@ -705,8 +705,17 @@ def render_section_html(title, subtitle, repos, category):
         </td></tr>
             """
         else:
+            # List sections: the owner's GitHub avatar as a small square thumbnail beside the text.
+            owner = escape(r["full_name"].split("/")[0])
             rows += f"""
-        <tr><td style="padding:0 22px 32px 22px;">{repo_text_html(r, category, 19)}</td></tr>
+        <tr><td style="padding:0 22px 32px 22px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td width="48" valign="top" style="width:48px; padding:2px 14px 0 0;"><a href="{escape(r['url'])}" target="_blank"><img src="https://avatars.githubusercontent.com/{owner}?s=96" width="48" height="48" alt="{owner} 프로필 이미지" style="display:block; width:48px; height:48px; border:0;" /></a></td>
+              <td valign="top">{repo_text_html(r, category, 19)}</td>
+            </tr>
+          </table>
+        </td></tr>
             """
 
     # Work picks sit on one white sheet; fun picks sit on the accent-tinted field.

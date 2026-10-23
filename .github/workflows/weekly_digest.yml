@@ -2,17 +2,14 @@ name: GitHub Trend Email Digest
 
 on:
   schedule:
-    # 자동 생성됨: 한국 시간(KST) 기준 [MON,WED,FRI 06:00] 실행
-    - cron: '0 21 * * 0,2,4'
+    # 자동 생성됨: 한국 시간(KST) 기준 [MON 06:00] 실행
+    - cron: '0 21 * * 0'
   workflow_dispatch:
     inputs:
       trending_window:
         description: '수집 기간 선택 (daily / weekly / monthly)'
         required: false
         default: 'daily'
-
-permissions:
-  contents: write  # lets the job commit sent_history.json
 
 jobs:
   send-digest:
@@ -37,11 +34,3 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL || 'kusari0215@naver.com' }}
         run: python send_digest.py
-
-      - name: Commit sent history
-        run: |
-          [ -f sent_history.json ] || exit 0
-          git config user.name "github-actions[bot]"
-          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add sent_history.json
-          git diff --cached --quiet || (git commit -m "chore: update sent history" && git push)

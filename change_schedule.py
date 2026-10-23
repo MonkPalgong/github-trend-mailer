@@ -63,9 +63,6 @@ on:
         required: false
         default: '{config["curation"].get("trending_window", "weekly")}'
 
-permissions:
-  contents: write  # lets the job commit sent_history.json
-
 jobs:
   send-digest:
     runs-on: ubuntu-latest
@@ -89,14 +86,6 @@ jobs:
           SMTP_PASSWORD: ${{{{ secrets.SMTP_PASSWORD }}}}
           RECIPIENT_EMAIL: ${{{{ secrets.RECIPIENT_EMAIL || 'kusari0215@naver.com' }}}}
         run: python send_digest.py
-
-      - name: Commit sent history
-        run: |
-          [ -f sent_history.json ] || exit 0
-          git config user.name "github-actions[bot]"
-          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add sent_history.json
-          git diff --cached --quiet || (git commit -m "chore: update sent history" && git push)
 """
     with open(WORKFLOW_PATH, "w", encoding="utf-8") as f:
         f.write(yml)

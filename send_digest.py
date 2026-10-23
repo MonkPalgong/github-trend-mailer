@@ -17,7 +17,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 PREVIEW_PATH = os.path.join(BASE_DIR, "sample_newsletter.html")
 CACHE_JSON_PATH = os.path.join(BASE_DIR, "latest_curated_repos.json")
-HISTORY_PATH = os.path.join(BASE_DIR, "sent_history.json")
 
 
 def load_dotenv():
@@ -36,28 +35,6 @@ def load_config():
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
-
-def load_sent_history():
-    """{full_name: "YYYY-MM-DD"} of repos already mailed."""
-    if not os.path.exists(HISTORY_PATH):
-        return {}
-    with open(HISTORY_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def recently_sent_names(history, days):
-    cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%d")
-    return {name for name, sent_on in history.items() if sent_on >= cutoff}
-
-
-def record_sent(history, repos, days):
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    for r in repos:
-        history[r["full_name"]] = today
-    # Entries older than the exclusion window no longer affect selection.
-    kept = {name: history[name] for name in sorted(recently_sent_names(history, days))}
-    with open(HISTORY_PATH, "w", encoding="utf-8") as f:
-        json.dump(kept, f, ensure_ascii=False, indent=2)
 
 
 def fetch_url(url, headers=None, timeout=12):
@@ -560,7 +537,7 @@ def keyword_section(r, work_kw, fun_kw):
     return "fun" if fun_score > work_score else "work"
 
 
-def categorize_repos(trending_repos, surging_repos, config, exclude_names=frozenset()):
+def categorize_repos(trending_repos, surging_repos, config):
     """
     섹션 1 (급등): 일평균 별 증가 속도 순.
     섹션 2·3 (업무·취미): 권위 점수 상위 후보를 Gemini가 work/fun/skip으로 분류하고 요약.
@@ -575,8 +552,6 @@ def categorize_repos(trending_repos, surging_repos, config, exclude_names=frozen
         if has_cjk_only_without_korean(r.get("description", "")):
             continue
         fname = r["full_name"]
-        if fname in exclude_names:
-            continue
         if fname in merged_map:
             merged_map[fname]["total_stars"] = max(merged_map[fname]["total_stars"], r["total_stars"])
             merged_map[fname]["daily_velocity"] = max(merged_map[fname]["daily_velocity"], r["daily_velocity"])
@@ -599,7 +574,7 @@ def categorize_repos(trending_repos, surging_repos, config, exclude_names=frozen
     # 2. 업무·취미 후보 풀: 권위 점수 상위 + 셀프호스팅·데스크톱 앱 보강분
     rest = [r for r in combined_all if r["full_name"] not in used_names]
     pool = sorted(rest, key=lambda x: (compute_authority_score(x), x["total_stars"]), reverse=True)[:CANDIDATE_POOL_SIZE]
-    pool_names = {r["full_name"] for r in pool} | used_names | set(exclude_names)
+    pool_names = {r["full_name"] for r in pool} | used_names
     # GitHub search rejects OR between qualifiers, so query each topic separately.
     extra_fun = []
     for topic in ("self-hosted", "desktop-app", "productivity"):
@@ -842,8 +817,6 @@ def main():
 
     load_dotenv()
     config = load_config()
-    history_days = config["curation"].get("history_exclude_days", 28)
-    history = load_sent_history()
     days = config["curation"].get("surge_created_within_days", 14)
 
     if args.from_cache and os.path.exists(CACHE_JSON_PATH):
@@ -859,9 +832,7 @@ def main():
         surging = fetch_newly_surging_repos(days=days)
 
         print(f"[2/4] v5.1 Multi-Window 하이브리드 랭킹(REA 등 주간 메가히트 + 대장주 권위도 + Owner Cap=1) 분류 및 1:1 분석 중...")
-        exclude_names = recently_sent_names(history, history_days)
-        print(f"      최근 {history_days}일 안에 보낸 레포 {len(exclude_names)}개는 제외합니다.")
-        surge_list, work_list, fun_list = categorize_repos(trending, surging, config, exclude_names)
+        surge_list, work_list, fun_list = categorize_repos(trending, surging, config)
 
         with open(CACHE_JSON_PATH, "w", encoding="utf-8") as f:
             json.dump({"surge_list": surge_list, "work_list": work_list, "fun_list": fun_list}, f, ensure_ascii=False, indent=2)
@@ -874,8 +845,7 @@ def main():
     print(f"[4/4] 샘플 뉴스레터 HTML 저장 완료: {PREVIEW_PATH}")
 
     if not args.no_send:
-        if send_email_if_configured(html_body, config):
-            record_sent(history, surge_list + work_list + fun_list, history_days)
+        send_email_if_configured(html_body, config)
 
 
 if __name__ == "__main__":

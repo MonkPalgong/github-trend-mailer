@@ -431,7 +431,7 @@ def select_with_owner_cap(candidates, count, used_names, used_owners, max_per_ow
     return selected
 
 
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-3.5-flash-lite"
 CANDIDATE_POOL_SIZE = 30
 EXTRA_FUN_POOL_SIZE = 8
 

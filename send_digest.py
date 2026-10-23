@@ -28,7 +28,7 @@ def load_dotenv():
                 if not line or line.startswith("#") or "=" not in line:
                     continue
                 k, v = line.split("=", 1)
-                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+                os.environ[k.strip()] = v.strip().strip('"').strip("'")
 
 
 def load_config():

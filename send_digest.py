@@ -140,52 +140,8 @@ def postprocess_ko_dev_terms(text):
     return out
 
 
-# 주요 레포지토리의 고품질 한국어 요약 사전 (무료 번역 API 일일 쿼터 초과 시에도 100% 완벽한 한국어 보장)
-CURATED_KO_SUMMARIES = {
-    "gathin23/cleanyourtv": "Wi-Fi(무선 ADB) 연결만으로 Android TV 및 Google TV에 기본 탑재된 광고와 블로트웨어(불필요한 앱)를 한 번에 제거하고 쾌적한 Apple TV 스타일 홈 화면으로 바꿔주는 유틸리티입니다.",
-    "deepseek-ai/deepinfer": "DeepSeek 대규모 언어 모델(LLM)의 프로덕션 서빙 및 오프라인 대량 추론 처리량을 극대화하기 위해 설계된 고성능 오픈소스 추론 프레임워크입니다.",
-    "cloudflare/security-audit-skill": "정찰·범위 기반 취약점 탐색·후보 검증·독립적 감사 기록 검증을 거쳐 기계 판독 가능한 다단계 보안 감사 보고서를 생성해 주는 Cloudflare 공식 코딩 에이전트 보안 스킬입니다.",
-    "dietrichgebert/ponytail": "AI 코딩 에이전트가 불필요한 보일러플레이트나 과잉 설계를 늘어놓지 않고 숙련된 시니어 개발자처럼 최소한의 코드(코드량 -53%, 토큰 -45%)와 높은 테스트 커버리지로 문제를 해결하게 만드는 스킬입니다.",
-    "anomalyco/opencode": "특정 벤더에 종속되지 않고 터미널(CLI)과 데스크톱 앱 환경 모두에서 다양한 LLM 모델을 연결해 사용할 수 있는 오픈소스 AI 코딩 에이전트입니다.",
-    "graphify-labs/graphify": "코드베이스, 문서, SQL 스키마, 설정 파일 및 PDF를 로컬 결정론적 AST 파싱을 통해 쿼리 가능한 지식 그래프(Knowledge Graph)로 변환하여 에이전트 토큰 소모를 최대 80% 절감해 주는 도구입니다.",
-    "comfy-org/comfyui": "노드·그래프 기반 인터페이스로 이미지, 비디오, 오디오 확산(Diffusion) 모델을 자유롭게 조합하고 실행할 수 있는 가장 강력한 모듈형 생성 AI GUI 및 백엔드 엔진입니다.",
-    "stablyai/orca": "Claude Code, Codex, OpenCode, Grok 등 여러 코딩 에이전트 함대(Fleet)를 데스크톱·모바일·원격 런타임에서 나란히 실행하고 각 작업 트리를 한곳에서 추적·관리하는 AI 오케스트레이터입니다.",
-    "supabase/supabase": "엔터프라이즈급 PostgreSQL 데이터베이스를 기반으로 인증(Auth), 실시간 구독, 스토리지, 벡터 임베딩을 통합 제공하는 오픈소스 Firebase 대안 백엔드 플랫폼입니다.",
-    "simbasjungles/free-my-tv": "광고와 무거운 추천 피드를 완전히 걷어내고 직관적인 원버튼 실행 취소 기능만 남긴 초경량·초고속 Google TV 전용 오픈소스 홈 런처입니다.",
-    "morluto/rea": "AI 에이전트를 활용해 일반 애플리케이션의 동작 흐름부터 네이티브 바이너리 내부 수준까지 모든 소프트웨어를 자동으로 리버스 엔지니어링(역분석)해 주는 차세대 분석 플랫폼입니다.",
-    "boykopovar/anyps5": "에뮬레이터 없이 PS5 콘솔 실행 파일을 바이너리 리링커(Relinker)와 시스템 PRX 라이브러리 구현을 통해 Windows 및 Linux용 네이티브 실행 파일로 자동 포팅해 주는 도구입니다.",
-    "storytold/artcraft": "아티스트·디자이너·영상 제작자를 위한 대화형 AI 이미지·비디오 제작 IDE로, 2D 캔버스 구성과 3D 장면 연출을 결합해 정교하고 일관된 시각 결과물을 만들어내는 제작 엔진입니다.",
-    "mattpocock/skills": "TypeScript 구루 Matt Pocock이 실제 프로덕션 엔지니어링에 매일 사용하는 `.agents` 디렉토리 원본 스킬 모음으로, 통제권을 잃는 무분별한 바이브 코딩 대신 재현 가능하고 견고한 소프트웨어 개발 워크플로우를 제공합니다.",
-    "nationalsecurityagency/ghidra": "미국 국가안보국(NSA)이 개발·공개한 세계적인 오픈소스 소프트웨어 리버스 엔지니어링(SRE) 프레임워크로, 다양한 플랫폼의 바이너리 디컴파일 및 정밀 취약점 분석을 지원합니다.",
-    "cathrynlavery/diagram-design": "Claude Code, Cursor, Codex 등에서 지저분한 그림자나 Mermaid 깨짐 현상 없이 45가지 유형의 깔끔한 독립형 HTML+SVG 아키텍처 다이어그램을 즉시 생성해 주는 에이전트 스킬입니다.",
-    "heygen-com/hyperframes": "AI 에이전트가 익숙한 HTML/TypeScript 코드만 작성하면 이를 곧바로 고품질 모션 비디오로 렌더링해 주는 에이전트 친화적 비디오 생성 프레임워크입니다.",
-    "earthtojake/text-to-cad": "자연어 텍스트 프롬프트만으로 정밀한 3D CAD 모델과 엔지니어링 도면 파일을 생성해 주는 오픈소스 Text-to-CAD 도구입니다.",
-    "debpalash/voicestudio": "646개 언어를 지원하는 오픈소스 완전 로컬(On-device) 음성 복제·음성 디자인·영상 더빙·오디오북 제작 스튜디오(유료 ElevenLabs의 무료 오픈소스 대안)입니다.",
-    "wheresryan22/anatomy": "실제 기계 장치와 복잡한 시스템 아키텍처를 WebGL 셰이더 및 3D 효과가 적용된 정교한 대화형 아이소메트릭 SVG 도식으로 생성해 주는 AI 에이전트 스킬입니다.",
-    "xerj-org/xerj": "코딩 에이전트가 grep/sed로 파일을 하나씩 읽으며 토큰을 낭비하는 대신, 단 한 줄의 명령으로 코드·문서·로그·PDF를 자동 인덱싱해 최대 40배 적은 토큰으로 초고속 검색을 제공하는 로컬 AI 검색 엔진입니다.",
-    "anthropics/claude-plugins-official": "Anthropic이 공식 관리하는 고품질 Claude Code 플러그인 디렉토리로, 공식 내장 플러그인과 검증된 파트너/커뮤니티 확장 플러그인을 한곳에서 설치·참고할 수 있습니다.",
-    "storytold/wordcraft": "Microsoft Word의 리본 UI, 스타일, 표, 변경 내용 추적, 메일 병합 워크플로우를 순수 Rust 언어로 클린룸(독립 재구현)한 초고속 오픈소스 워드 프로세서입니다.",
-    "obra/superpowers": "전 세계 30만 명 이상의 개발자가 채택한 AI 코딩 에이전트 표준 개발 방법론 및 스킬 프레임워크로, 설계 브레인스토밍부터 TDD·체계적 디버깅·완료 전 검증 루프를 강제합니다.",
-    "affaan-m/ecc": "Claude Code, Codex, Cursor 등을 위한 28만 스타급 에이전트 하네스 성능 최적화 시스템으로, 실무 스킬·메모리·보안·리서치 우선 개발 및 Critic 검증 구조를 제공합니다.",
-    "ruvnet/ruflo": "지능형 멀티 에이전트 스웜(Swarm) 배포, 자율 워크플로우 조율, 적응형 메모리 및 벡터 RAG 통합을 지원하는 엔터프라이즈급 AI 에이전트 오케스트레이션 플랫폼입니다.",
-    "k-dense-ai/scientific-agent-skills": "생물학·화학·의학·물리학·데이터 분석 등 177개의 검증된 연구 스킬과 100개 이상의 과학 데이터베이스 연동을 통해 일반 AI 에이전트를 전문 AI 과학자로 변신시키는 스킬 라이브러리입니다.",
-    "madslorentzen/ai-job-search": "내 로컬 PC에서 동작하는 AI 채용 지원 프레임워크로, 채용 공고 적합도 평가·맞춤형 이력서(CV) 첨삭·커버레터 작성·면접 예상 질문 준비를 자동화해 줍니다.",
-    "hkuds/cli-anything": "다양한 소프트웨어와 워크플로우를 AI 에이전트 친화적인 CLI(명령줄 인터페이스) 도구로 손쉽게 변환·연결해 주는 자동화 프레임워크입니다.",
-    "mksglu/context-mode": "대규모 프로젝트에서 AI 에이전트의 컨텍스트 윈도우 낭비를 줄이고 핵심 코드 맥락만 정밀하게 유지해 주는 컨텍스트 최적화 도구입니다.",
-    "arahim3/digup": "Google DeepMind의 최신 멀티모달 모델(EmbeddingGemma 2)을 기반으로, 내 PC 안의 사진·PDF·문서·녹음·동영상·코드 속 내용을 클라우드 전송 없이 로컬에서 즉시 검색해 주는 온디바이스 앱입니다.",
-    "jhaizhou-ops/d2r-mobile": "디아블로 II: 레저렉션(Reign of the Warlock 확장팩 포함)을 iPhone, iPad, Mac에서 60fps와 풀 터치 컨트롤로 네이티브 구동할 수 있게 해주는 오픈소스 호환성 레이어입니다.",
-    "losalossantos/aurelio-finance": "내 컴퓨터에서 순자산, 투자 포트폴리오, ETF, 배당금, 현금 및 부채를 프라이빗하게 추적하고 내장된 로컬 AI 재무 어드바이저와 상담할 수 있는 개인 자산관리 앱입니다.",
-    "t4t5/omdrop-owl": "애플의 무선 프로토콜(AWDL)을 오픈소스로 구현하여, 리눅스/윈도우 노트북 등 비애플 기기와 아이폰 간에도 AirDrop으로 파일을 직접 주고받을 수 있게 해주는 유틸리티입니다.",
-    "hmjz100/linkswift": "바이두, 알리클라우드, 구글 드라이브 등 8대 주요 클라우드 웹하드의 다이렉트 다운로드 링크를 추출해 속도 제한 없이 고속 다운로드를 지원하는 오픈소스 도구입니다.",
-    "openai/math": "OpenAI 내부 추론 모델이 생성한 수학적 원고 및 Lean 4 형식 증명(Formal Proof) 아티팩트를 담은 공식 연구 저장소입니다.",
-    "onehumanbeing/esp32-iphone-agent": "7달러짜리 ESP32 보드(USB HID 손 + AirPlay 눈)만 연결해 Mac이나 개발자 계정, 탈옥 없이도 비전 AI 모델이 실제 아이폰을 직접 보고 터치하며 조작하게 해주는 하드웨어 에이전트입니다.",
-}
-
-
-def translate_en_to_ko(text, full_name=""):
-    """사전 정의된 고정밀 한국어 요약 + Google 무료 번역 엔드포인트 + MyMemory 폴백으로 영어 원문 노출을 100% 방지합니다."""
-    if full_name and full_name.lower() in CURATED_KO_SUMMARIES:
-        return CURATED_KO_SUMMARIES[full_name.lower()]
+def translate_en_to_ko(text):
+    """Google 무료 번역 엔드포인트 + MyMemory 폴백으로 영어 원문을 한국어로 옮깁니다."""
     if not text or not text.strip():
         return ""
     if len(re.findall(r"[가-힣]", text)) > 15:
@@ -264,431 +220,6 @@ def clean_markdown_to_summary(md_text):
     return combined[:260]
 
 
-def extract_repo_metadata_signals(repo):
-    """
-    [v5.2 신호 분리 엔진]
-    README 설치 안내문에 적힌 'claude', 'cursor', 'agent' 단어 때문에 일반 앱(Android TV 앱 등)이
-    AI 에이전트 스킬로 오판되는 현상을 막기 위해, 1차 핵심 신호(name + description + topics)와
-    2차 보조 문맥(readme_excerpt)을 엄격히 분리합니다.
-    """
-    name = repo["full_name"]
-    short_name = name.split("/")[-1]
-    lang = repo.get("language") or "Multi"
-    desc = repo.get("description", "").strip()
-    readme = repo.get("readme_excerpt", "").strip()
-    topics = [t.lower() for t in repo.get("topics", [])]
-    primary_blob = f"{name} {desc} {' '.join(topics)}"
-    full_blob = f"{primary_blob} {readme}"
-
-    if has_word(primary_blob, ["android-tv", "google-tv", "apple-tv", "tv", "launcher", "adb"]):
-        artifact_type = f"{lang} 기반 스마트 TV·안드로이드 유틸리티"
-    elif has_word(primary_blob, ["skill", "skills", "agent-skill", "claude-code", "cursor-plugin", "plugins"]):
-        artifact_type = "AI 에이전트 플러그인·스킬"
-    elif has_word(primary_blob, ["cli", "terminal", "tui", "shell", "command-line"]):
-        artifact_type = f"{lang} 기반 터미널(CLI) 도구"
-    elif has_word(primary_blob, ["desktop", "macos", "windows", "ios", "ipad", "on-device", "studio", "gui"]):
-        artifact_type = f"{lang} 기반 데스크톱·온디바이스 앱"
-    elif has_word(primary_blob, ["self-hosted", "docker", "server", "postgres", "database", "backend"]):
-        artifact_type = f"{lang} 기반 서버·백엔드 플랫폼"
-    elif lang.lower() in ["lean", "tex", "jupyter notebook"]:
-        artifact_type = f"{lang} 기반 수학 증명·연구 아티팩트"
-    else:
-        artifact_type = f"{lang} 기반 오픈소스 프레임워크"
-
-    return short_name, lang, desc, readme, topics, primary_blob, full_blob, artifact_type
-
-
-def extract_distinct_detail_sentence(summary_ko, readme, desc, full_name=""):
-    """
-    2번 '내용 요약'과 똑같은 문장이 3번 '맞춤 활용 포인트'에 반복되지 않도록,
-    요약문의 두 번째 문장이나 README의 구체적 기술 특징(What/How)만 별도로 추출합니다.
-    """
-    sentences = [s.strip() for s in re.split(r"(?<=[\.다요!])\s+", summary_ko or "") if len(s.strip()) >= 12]
-    if len(sentences) >= 2:
-        sec = sentences[1].rstrip(".")
-        if len(sec) > 75:
-            sec = sec[:75].rstrip() + "..."
-        return sec
-
-    if readme:
-        readme_ko = translate_en_to_ko(readme[:220], full_name="")
-        r_sents = [s.strip() for s in re.split(r"(?<=[\.다요!])\s+", readme_ko or "") if len(s.strip()) >= 12]
-        for rs in r_sents:
-            if not summary_ko or rs[:18] not in summary_ko:
-                clean_rs = rs.rstrip(".")
-                return clean_rs[:75].rstrip() + ("..." if len(clean_rs) > 75 else "")
-
-    base = (summary_ko or desc or full_name).split(".")[0].strip()
-    return base[:68].rstrip() + ("..." if len(base) > 68 else "")
-
-
-def generate_personal_benefit(repo, summary_ko):
-    """
-    [1:1 맞춤형 활용 포인트 엔진 v5.2 — 판박이 꼬리말 제로 & README 오염 차단]
-    - 1차 핵심 신호(primary_blob = name + description + topics)를 우선 판별해 TV 앱/추론 엔진 등이 에이전트 스킬로 오분류되는 버그를 차단합니다.
-    - 25개 세분화 도메인 매트릭스 + 레포별 고유 세부 기능(extract_distinct_detail_sentence) + 15종 회전형 액션 시나리오를 결합하여
-      어느 두 아이템도 뒤쪽 꼬리말(Suffix)이 겹치지 않도록 생성합니다.
-    """
-    short_name, lang, desc, readme, topics, primary_blob, full_blob, artifact_type = extract_repo_metadata_signals(repo)
-    name_lower = repo["full_name"].lower()
-    detail_ko = extract_distinct_detail_sentence(summary_ko, readme, desc, repo["full_name"])
-
-    # 1. 대표 대장주 & 메가 히트 오픈소스 1:1 전용 매핑
-    if "morluto/rea" in name_lower:
-        return (
-            f"[{short_name} 맞춤 활용] 이번 주 +24만 스타 이상 폭발한 최강 리버스 엔지니어링 에이전트 도구로, 문서화가 안 된 상용 앱이나 네이티브 바이너리의 내부 동작 원리를 "
-            f"AI 에이전트와 함께 함수·메모리 수준까지 빠르게 역추적하고 분석할 때 압도적인 위력을 발휘합니다."
-        )
-    if "obra/superpowers" in name_lower:
-        return (
-            f"[{short_name} 맞춤 활용] 30만 스타를 돌파한 에이전트 엔지니어링 표준 프레임워크로, 현재 Antigravity에 적용하신 Anti-Yes-Man 브레인스토밍 게이트와 "
-            f"TDD·체계적 디버깅 스킬의 최신 업데이트 본을 직접 확인하고 동기화할 때 가장 핵심이 되는 레퍼런스입니다."
-        )
-    if "mattpocock/skills" in name_lower:
-        return (
-            f"[{short_name} 맞춤 활용] 무분별한 '바이브 코딩'으로 코드 통제권을 잃는 문제를 막기 위해 Matt Pocock이 실제 사용하는 `.agents` 실전 스킬 모음으로, "
-            f"내 Antigravity 글로벌 스킬에 엄격한 타입/설계 제어 프롬프트를 추가할 때 훌륭한 교본이 됩니다."
-        )
-    if "affaan-m/ecc" in name_lower or "everything-claude-code" in name_lower:
-        return (
-            f"[{short_name} 맞춤 활용] 에이전트 하네스 최적화·토큰 절약·Critic 자체 검증 루프를 총망라한 28만 스타급 올인원 스킬셋으로, "
-            f"내 로컬 에이전트의 보안/메모리/서브에이전트 오케스트레이션 성능을 업그레이드할 때 바로 차용할 수 있습니다."
-        )
-    if "xerj" in name_lower:
-        return (
-            f"[{short_name} 맞춤 활용] 코딩 에이전트가 grep으로 파일을 뒤지며 토큰을 태우는 대신 로컬 폴더를 자동 인덱싱해 토큰 소모를 1/40로 줄여주므로, "
-            f"대규모 코드베이스 탐색 및 로컬 RAG 검색 속도를 극대화하는 유틸리티로 바로 도입할 수 있습니다."
-        )
-    if "claude-plugins-official" in name_lower:
-        return (
-            f"[{short_name} 맞춤 활용] Anthropic이 공식 관리하는 Claude Code 플러그인 표준 디렉토리로, 외부 서비스 연동(MCP·슬래시 명령·훅)을 "
-            f"어떤 폴더 규격과 매니페스트 구조로 패키징하는지 참고해 나만의 커스텀 플러그인을 만들 때 유용합니다."
-        )
-    if "scientific-agent-skills" in name_lower:
-        return (
-            f"[{short_name} 맞춤 활용] 논문 검색·데이터 통계 분석·실험 문서 자동화를 위한 고도화된 연구용 에이전트 스킬 모음으로, "
-            f"심층 리서치나 기술 보고서 작성 자동화 파이프라인을 정교하게 다듬을 때 바로 이식해 쓸 수 있습니다."
-        )
-    if "ruflo" in name_lower:
-        return (
-            f"[{short_name} 맞춤 활용] 다중 AI 에이전트 스웜(Swarm) 조율과 엔터프라이즈 RAG·자율 워크플로우를 지원하는 오케스트레이션 플랫폼({lang})으로, "
-            f"여러 서브에이전트가 역할을 분담해 복잡한 코딩 작업을 병렬 처리하는 아키텍처를 설계할 때 좋은 참고서가 됩니다."
-        )
-    if "opencode" in name_lower:
-        return (
-            f"[{short_name} 맞춤 활용] 특정 유료 모델에 종속되지 않는 오픈소스 터미널/데스크톱 코딩 에이전트({lang})로, "
-            f"로컬 LLM이나 다양한 API 키를 자유롭게 연결해 독립적인 AI 페어 프로그래밍 환경을 구축할 때 바로 설치해 쓸 수 있습니다."
-        )
-    if "stablyai/orca" in name_lower or ("orca" in name_lower and has_word(primary_blob, ["fleet", "agents", "claude"])):
-        return (
-            f"[{short_name} 맞춤 활용] 여러 코딩 에이전트(Claude Code, Grok 등) 함대를 한 화면에서 동시에 지휘하고 작업 상태를 모니터링하는 멀티 에이전트 컨트롤 타워({lang})로, "
-            f"복수의 작업 브랜치를 병렬로 돌릴 때 작업 효율을 극대화해 줍니다."
-        )
-    if "comfyui" in name_lower:
-        return (
-            f"[{short_name} 맞춤 활용] 노드·그래프 기반으로 이미지·비디오·오디오 생성 파이프라인을 자유자재로 조립하는 오픈소스 생성형 AI 표준 엔진({lang})으로, "
-            f"내 PC의 GPU를 활용해 복잡한 커스텀 미디어 생성 워크플로우를 무제한 무료로 자동화할 때 필수적인 도구입니다."
-        )
-    if "supabase" in name_lower:
-        return (
-            f"[{short_name} 맞춤 활용] PostgreSQL 데이터베이스에 인증(Auth)·실시간 구독·스토리지·벡터 검색을 결합한 오픈소스 Firebase 대안 플랫폼으로, "
-            f"웹/앱 사이드 프로젝트의 백엔드 서버를 Docker로 셀프호스팅하거나 수분 만에 구축할 때 가장 든든한 기반이 됩니다."
-        )
-    if "graphify" in name_lower or has_word(primary_blob, ["knowledge-graph", "graphrag", "codebase-graph"]):
-        return (
-            f"[{short_name} 맞춤 활용] 코드베이스·문서·SQL 스키마·PDF를 단순 텍스트 청크가 아닌 '쿼리 가능한 지식 그래프(Knowledge Graph)'로 변환해 주므로, "
-            f"복잡하게 얽힌 대형 프로젝트의 모듈 의존성과 데이터 흐름을 AI에게 정확히 이해시킬 때 탁월한 효과를 발휘합니다."
-        )
-    if "deepinfer" in name_lower or has_word(primary_blob, ["inference", "vllm", "tensorrt", "deepseek", "serving", "quantization"]):
-        return (
-            f"[{short_name} 맞춤 활용] 대규모 언어 모델(DeepSeek 등)의 추론 지연 시간을 줄이고 GPU 처리량(Throughput)을 극대화하는 고성능 서빙 프레임워크({lang})로, "
-            f"자체 LLM 추론 서버를 최적화하거나 저비용·고효율 모델 배포 파이프라인을 연구할 때 핵심 레퍼런스가 됩니다."
-        )
-    if "security-audit" in name_lower or has_word(primary_blob, ["security-audit", "vulnerability", "pentest", "cve", "sast", "audit"]):
-        return (
-            f"[{short_name} 맞춤 활용] 코드 변경 사항이나 외부 의존성 패키지를 다단계로 정밀 스캔해 기계 판독 가능한 보안 감사 리포트를 뽑아주므로, "
-            f"배포 전 자동 보안 취약점 점검(DevSecOps) 게이트로 내 워크플로우에 결합하기에 안성맞춤입니다."
-        )
-    if "ponytail" in name_lower or has_word(primary_blob, ["senior-developer", "overengineering", "simplicity"]):
-        return (
-            f"[{short_name} 맞춤 활용] AI 에이전트가 불필요한 추상화나 과잉 설계(Over-engineering)를 하지 못하도록 '가장 간결한 시니어 개발자'의 사고방식을 주입하는 도구로, "
-            f"코드 비대화를 막고 핵심 로직만 군더더기 없이 작성하게 제어할 때 큰 위력을 발휘합니다."
-        )
-
-    # 2. 스마트 TV / 안드로이드 / ADB 광고·블로트웨어 제거 (예: cleanyourtv, free-my-tv — README의 claude 단어에 오염되지 않도록 최상단 배치!)
-    if has_word(primary_blob, ["tv", "android-tv", "google-tv", "apple-tv", "bloatware", "adb", "launcher"]):
-        if "cleanyourtv" in name_lower or has_word(primary_blob, ["bloat", "bloatware", "debloat", "wifi"]):
-            return (
-                f"[{short_name} 맞춤 활용] 거실의 Android TV나 Google TV에 기본 설치된 무거운 광고·블로트웨어를 Wi-Fi(무선 ADB) 연결만으로 깔끔하게 제거해 주어, "
-                f"느려진 스마트 TV를 쾌적한 Apple TV 스타일 화면으로 되살리는 주말 홈 유틸리티로 바로 써먹을 수 있습니다."
-            )
-        return (
-            f"[{short_name} 맞춤 활용] 무거운 추천 피드와 광고로 가득 찬 기본 Google TV 홈 화면을 대체하는 초경량 커스텀 런처({lang})로, "
-            f"집에서 쓰는 스마트 TV나 셋톱박스의 리모컨 반응 속도를 즉각 끌어올리는 생활 밀착형 앱입니다."
-        )
-
-    # 3. 수학 / 형식 검증 / 논문 아티팩트 (예: openai/math 등)
-    if lang.lower() == "lean" or has_word(primary_blob, ["lean", "theorem", "proof", "proofs", "mathematical", "math"]):
-        return (
-            f"[{short_name} 맞춤 활용] OpenAI 등이 공개한 {artifact_type}으로, 최신 LLM이 고난도 수학 증명과 형식 검증(Formal Verification)을 "
-            f"어떤 코드 논리로 전개하는지 직접 열어보며 AI 추론 엔지니어링 인사이트를 넓히기에 좋습니다."
-        )
-
-    # 4. 게임 포팅 / 콘솔 리링커 / 모바일 호환성 레이어 (예: AnyPS5, d2r-mobile 등)
-    if has_word(primary_blob, ["ps5", "diablo", "d2r", "emulator", "relinker", "game-port", "switch", "compatibility-layer"]):
-        if has_word(primary_blob, ["diablo", "d2r", "ios", "ipad"]):
-            return (
-                f"[{short_name} 맞춤 활용] 디아블로 II 게임 바이너리를 iPhone·iPad·Mac 환경(터치 컨트롤·60fps)에서 네이티브로 구동하는 호환성 레이어 구조를 분석하거나, "
-                f"보유 중인 원본 게임 파일을 연결해 주말 취미 프로젝트로 직접 구동해 볼 수 있습니다."
-            )
-        return (
-            f"[{short_name} 맞춤 활용] 무거운 에뮬레이션 없이 PS5 콘솔 실행 파일을 Windows/Linux 네이티브 포맷으로 변환하는 바이너리 리링커(Relinker) 및 시스템 라이브러리({lang}) 설계를 "
-            f"시스템 프로그래밍 학습용이나 주말 취미 프로젝트로 뜯어보기에 매우 흥미롭습니다."
-        )
-
-    # 5. 리버스 엔지니어링 / 바이너리 디컴파일러
-    if has_word(primary_blob, ["reverse-engineering", "reverse engineer", "reverse engineering", "ghidra", "sre", "decompiler", "binary"]):
-        if "ghidra" in name_lower:
-            return (
-                f"[{short_name} 맞춤 활용] NSA가 개발한 8.9만 스타급 소프트웨어 역분석(SRE) 표준 프레임워크({lang})로, 실행 파일 디컴파일·보안 취약점 진단은 물론 "
-                f"최신 AI 에이전트(MCP)와 연결해 바이너리 자동 분석 파이프라인을 구축할 때 필수 도구로 쓰기 좋습니다."
-            )
-        return (
-            f"[{short_name} 맞춤 활용] {short_name}의 AI 기반 바이너리·앱 동작 역분석 기능을 활용해, 문서화가 안 된 외부 실행 파일이나 "
-            f"복잡한 레거시 시스템의 내부 호출 흐름을 빠르게 추적·파악하는 실무 디버깅 도구로 활용할 수 있습니다."
-        )
-
-    # 6. 다이어그램 / 시각화 생성 스킬
-    if has_word(primary_blob, ["diagram", "diagrams", "isometric", "svg", "webgl", "mermaid", "vizualization", "visualization"]):
-        if has_word(primary_blob, ["isometric", "anatomy", "webgl", "mechanical"]):
-            return (
-                f"[{short_name} 맞춤 활용] Antigravity나 Claude Code에 이 스킬을 추가해 두면, 복잡한 기계 구조나 시스템 내부 작동 원리를 "
-                f"WebGL 셰이더가 적용된 입체적인 3D 아이소메트릭 SVG 도식으로 즉시 뽑아내어 기술 발표 자료를 돋보이게 만들 수 있습니다."
-            )
-        return (
-            f"[{short_name} 맞춤 활용] 기존 Mermaid 다이어그램의 깨짐이나 촌스러운 그림자 없이 45가지 레이아웃의 깔끔한 독립형 HTML+SVG 아키텍처 도면을 생성해 주므로, "
-            f"사내 설계 문서나 완료 보고서 시각자료 제작용 스킬로 바로 장착해 쓰기 좋습니다."
-        )
-
-    # 7. 개인 금융 / 자산 / 재무 관리 앱 (예: aurelio-finance)
-    if has_word(primary_blob, ["finance", "financial", "net-worth", "etf", "dividends", "portfolio", "budget"]):
-        return (
-            f"[{short_name} 맞춤 활용] 민감한 개인 자산·ETF·배당금·부채 데이터를 외부 유료 클라우드에 올리지 않고 내 PC({lang})에 안전하게 보관하면서, "
-            f"내장된 로컬 AI 어드바이저와 대화하며 개인 재무 계획을 세우는 프라이빗 가계부/자산관리 앱으로 바로 설치해 쓸 수 있습니다."
-        )
-
-    # 8. 로컬 온디바이스 파일/미디어 멀티모달 검색 (예: DigUp)
-    if has_word(primary_blob, ["file-search", "embeddinggemma", "embeddings", "on-device"]) and has_word(primary_blob, ["photos", "pdf", "files", "search"]):
-        return (
-            f"[{short_name} 맞춤 활용] 클라우드 업로드 없이 내 PC 안의 사진·PDF·문서·코드·동영상 속 내용을 자연어로 즉시 찾아주는 온디바이스 검색 앱({lang})이므로, "
-            f"집이나 업무 PC에 설치해 로컬 자료 탐색 시간을 대폭 줄이는 개인 생산성 도구로 유용합니다."
-        )
-
-    # 9. 음성 합성 / 오디오 스튜디오 (예: VoiceStudio)
-    if "voicestudio" in name_lower or has_word(primary_blob, ["voice", "tts", "speech", "voicestudio", "dubbing", "audiobook"]):
-        return (
-            f"[{short_name} 맞춤 활용] 7만 스타 이상 검증된 다중 화자 음성 복제·합성 및 타임라인 편집 오디오 스튜디오({lang})로, "
-            f"외부 유료 TTS 구독 없이 내 PC에서 유튜브·발표 영상 더빙이나 개인 AI 음성 비서를 고품질로 제작할 수 있습니다."
-        )
-
-    # 10. 크리에이티브 2D/3D/영상 제작 엔진 & HTML 비디오 렌더링
-    if "artcraft" in name_lower or has_word(primary_blob, ["video", "3d", "2d", "render", "canvas", "animation", "filmmakers"]):
-        if has_word(primary_blob, ["html", "hyperframes"]) or "hyperframes" in name_lower:
-            return (
-                f"[{short_name} 맞춤 활용] 복잡한 영상 편집 프로그램 없이 익숙한 HTML/TypeScript 코드만으로 고화질 비디오를 렌더링할 수 있어, "
-                f"AI 에이전트에게 제품 데모 영상이나 자동화된 브리핑 영상을 코드로 제작하게 시킬 때 매우 유용합니다."
-            )
-        return (
-            f"[{short_name} 맞춤 활용] 텍스트 프롬프트만으로 제어하기 힘든 AI 이미지·영상 생성 작업을 2D 구성 및 3D 장면 연출 캔버스({lang}) 위에서 정밀하게 통제할 수 있어, "
-            f"고품질 창작 에셋이나 프레젠테이션용 시각 미디어를 일관성 있게 제작할 때 큰 도움이 됩니다."
-        )
-
-    # 11. 오피스 / 워드프로세서 / 스프레드시트 / 프레젠테이션 / CAD / DAW 클린룸 재구현
-    if has_word(primary_blob, ["wordcraft", "gridcraft", "deckcraft", "cadcraft", "solidcraft", "soundcraft", "craft-launcher", "microsoft word", "spreadsheet", "powerpoint", "autocad", "pro tools"]):
-        if "wordcraft" in name_lower or has_word(primary_blob, ["word processor", "microsoft word"]):
-            return (
-                f"[{short_name} 맞춤 활용] 무거운 MS Word를 순수 {lang}로 클린룸 재구현한 초고속 문서 편집기로, 가벼운 로컬 워드프로세서로 직접 써보거나 "
-                f"리본 UI·문서 렌더링 엔진을 {lang}로 설계하는 데스크톱 아키텍처 레퍼런스로 삼기에 훌륭합니다."
-            )
-        if "gridcraft" in name_lower or has_word(primary_blob, ["spreadsheet", "excel"]):
-            return (
-                f"[{short_name} 맞춤 활용] MS Excel 스타일의 스프레드시트를 순수 {lang}로 클린룸 재구현한 프로젝트로, 대용량 표 데이터 계산 그리드나 "
-                f"수식 평가 엔진을 고성능 {lang} 코드로 어떻게 구현하는지 실무 벤치마킹하기에 매우 좋습니다."
-            )
-        if "deckcraft" in name_lower or has_word(primary_blob, ["powerpoint", "slide", "presentations"]):
-            return (
-                f"[{short_name} 맞춤 활용] MS PowerPoint를 순수 {lang}로 재구현한 초경량 슬라이드 제작 도구로, 캔버스 기반 프레젠테이션 편집기 구조나 "
-                f"빠른 로컬 발표자료 작성 도구를 테스트해 볼 때 유용합니다."
-            )
-        if "solidcraft" in name_lower or (has_word(primary_blob, ["cad", "3d-modeling", "brep"]) and has_word(primary_blob, ["mcp", "parametric"])):
-            return (
-                f"[{short_name} 맞춤 활용] 순수 {lang} 기반의 파라메트릭 3D CAD 앱에 MCP(Model Context Protocol) 자동화가 결합되어 있어, "
-                f"AI 에이전트에게 자연어로 3D 부품 모델링이나 도면 생성을 자동 지시하는 엔지니어링 워크플로우로 활용할 수 있습니다."
-            )
-        if "cadcraft" in name_lower or has_word(primary_blob, ["autocad", "cad", "dxf", "drafting"]):
-            return (
-                f"[{short_name} 맞춤 활용] AutoCAD 스타일의 2D/3D 도면 설계(DXF·레이어·객체 스냅)를 순수 {lang}로 구현한 앱으로, "
-                f"정밀 벡터 그래픽 처리나 CAD 뷰어/에디터 엔진 구조를 참고할 때 큰 도움이 됩니다."
-            )
-        if "soundcraft" in name_lower or has_word(primary_blob, ["pro tools", "daw"]):
-            return (
-                f"[{short_name} 맞춤 활용] 전문가용 오디오 편집 워크스테이션(Avid Pro Tools)을 순수 {lang}로 클린룸 재구현한 프로젝트로, "
-                f"저지연(Low-latency) 멀티트랙 오디오 믹싱 엔진이나 음악 제작 데스크톱 앱 구조를 학습·활용하기에 좋습니다."
-            )
-
-    # 12. 하드웨어/모바일 제어 에이전트 & 로컬 기기 간 무선 파일 공유
-    if has_word(primary_blob, ["esp32", "airplay", "hid", "airdrop", "awdl"]):
-        if has_word(primary_blob, ["esp32", "iphone"]):
-            return (
-                f"[{short_name} 맞춤 활용] 7달러짜리 ESP32 보드를 USB HID(손)와 AirPlay(눈)로 활용해 탈옥이나 Mac 없이도 비전 AI 모델이 실제 아이폰을 원격 조작하게 해주는 기발한 하드웨어 자동화 프로젝트입니다."
-            )
-        if has_word(primary_blob, ["airdrop", "awdl"]):
-            return (
-                f"[{short_name} 맞춤 활용] 애플 전용 프로토콜(AWDL)을 오픈소스로 구현해 리눅스/윈도우 등 비애플 기기에서도 아이폰·맥과 AirDrop으로 파일을 주고받을 수 있게 해주는 실용적인 로컬 네트워크 유틸리티입니다."
-            )
-
-    # 13. 취업 / 채용 자동화
-    if has_word(primary_blob, ["job", "resume", "career", "interview", "hiring"]):
-        return (
-            f"[{short_name} 맞춤 활용] 채용 공고 탐색·이력서 맞춤 최적화·지원 현황 추적을 자동화해 주는 도구로, "
-            f"이직 준비 시 반복적인 서류 작업 시간을 줄이거나 개인 맞춤형 채용 알림 봇을 구축할 때 참고하기 좋습니다."
-        )
-
-    # 14. GPU / 커널 드라이버 / 하드웨어
-    if has_word(primary_blob, ["driver", "nvidia", "metal", "kext", "gpu", "kernel"]):
-        return (
-            f"[{short_name} 맞춤 활용] 최신 macOS에서 NVIDIA 그래픽카드가 Apple Metal 그래픽 가속을 쓸 수 있게 해주는 {lang} 기반 저수준 드라이버 프로젝트로, "
-            f"OS 커널 확장(kext) 및 GPU 하드웨어 인터페이스 구현 기법을 학습할 때 귀중한 레퍼런스가 됩니다."
-        )
-
-    # 15. CLI / 컨텍스트 관리 / 다운로드 도구
-    if has_word(primary_blob, ["cli-anything", "context-mode", "linkswift"]):
-        if "cli-anything" in name_lower:
-            return (
-                f"[{short_name} 맞춤 활용] 일반 GUI 소프트웨어나 웹 서비스를 AI 에이전트가 제어하기 쉬운 CLI 인터페이스로 변환해 주어, "
-                f"내 PC의 다양한 앱들을 Antigravity 터미널 명령으로 자동화할 때 바로 응용할 수 있습니다."
-            )
-        if "context-mode" in name_lower:
-            return (
-                f"[{short_name} 맞춤 활용] AI 코딩 시 토큰을 과도하게 잡아먹는 컨텍스트를 효율적으로 압축·관리해 주는 도구로, "
-                f"대규모 프로젝트에서 에이전트 응답 속도와 정확도를 유지하는 워크플로우에 결합하기 좋습니다."
-            )
-        if "linkswift" in name_lower:
-            return (
-                f"[{short_name} 맞춤 활용] 8대 주요 클라우드 웹하드(바이두·알리·구글드라이브 등)의 직링크 추출과 고속 다운로드를 돕는 오픈소스 유틸리티로, "
-                f"집 PC에서 대용량 설치 파일이나 오픈소스 모델 가중치를 속도 제한 없이 내려받을 때 편리합니다."
-            )
-
-    # 16. 동적 다변화 생성기 (미등록 신작들이 들어와도 절대 동일한 꼬리말이 나오지 않도록 레포 해시·도메인별 12종 고유 시나리오 매핑)
-    dynamic_scenarios = [
-        f"[{short_name} 맞춤 활용] '{detail_ko}' 구조를 갖춘 {artifact_type}으로, 내 로컬 개발 환경에서 직접 클론해 실행 흐름을 테스트해 보거나 관련 기능 구현 시 핵심 설계 교본으로 삼을 수 있습니다.",
-        f"[{short_name} 맞춤 활용] {lang} 생태계에서 '{detail_ko}' 문제를 해결하는 실용적인 오픈소스이므로, 반복적인 수작업을 줄이는 개인 자동화 파이프라인이나 사내 도구에 바로 접목하기 좋습니다.",
-        f"[{short_name} 맞춤 활용] '{detail_ko}' 특화 기능을 제공하는 {artifact_type}이라, 기존 상용 SaaS나 무거운 프로그램을 대체하는 가벼운 자체 호스팅(Self-hosted)·로컬 솔루션으로 도입해 볼 만합니다.",
-        f"[{short_name} 맞춤 활용] 최근 GitHub에서 검증된 {lang} 기반 아키텍처('{detail_ko}')를 담고 있어, 사이드 프로젝트에 필요한 핵심 모듈만 발췌해 개발 기간을 단축하는 용도로 유용합니다.",
-        f"[{short_name} 맞춤 활용] '{detail_ko}' 워크플로우를 깔끔하게 캡슐화한 {artifact_type}으로, Antigravity나 터미널 환경에 연동해 매일 쓰는 개발 생산성 단축 도구로 세팅해 두기 좋습니다.",
-        f"[{short_name} 맞춤 활용] 복잡한 설정 없이 '{detail_ko}' 환경을 바로 구축해 주는 {lang} 프로젝트로, 주말에 새로운 기술 스택을 빠르게 프로토타이핑하거나 벤치마킹할 때 훌륭한 출발점이 됩니다.",
-        f"[{short_name} 맞춤 활용] '{detail_ko}' 영역의 최신 엔지니어링 트렌드를 보여주는 {artifact_type}으로, 코드 내부의 프롬프트 설계나 시스템 처리 방식을 분석해 내 코드 품질을 한 단계 끌어올릴 수 있습니다.",
-        f"[{short_name} 맞춤 활용] 실무와 개인 작업 모두에서 '{detail_ko}' 요구사항이 생겼을 때 처음부터 바닥부터 짜는 대신, 검증된 이 {lang} 오픈소스를 기반으로 커스터마이징하여 시행착오를 크게 아낄 수 있습니다.",
-    ]
-    idx = sum(ord(c) for c in repo["full_name"]) % len(dynamic_scenarios)
-    return dynamic_scenarios[idx]
-
-
-def verify_and_deduplicate_benefits(all_repos):
-    """
-    [spec-kit + Critic 엄격 검증 게이트 v5.2]
-    15개 아이템 중 전체 문장이 같거나, 심지어 문장 뒤쪽 꼬리말(마지막 22자 Suffix)이 겹치는 경우까지
-    전수 검출하여 15개 아이템 모두 100% 서로 다른 맞춤형 문장과 종결 구조를 갖도록 보정합니다.
-    """
-    backup_tails = [
-        "내 로컬 환경에 직접 띄워 기능을 검증하고 사이드 프로젝트의 핵심 부품으로 결합하기에 안성맞춤입니다.",
-        "소스 코드의 핵심 설계 패턴과 모듈 분리 방식을 내 실무 프로젝트에 벤치마킹할 때 훌륭한 길잡이가 됩니다.",
-        "번거로운 수작업을 덜어주는 개인용 생산성 도구로 PC에 설치해 두고 필요할 때마다 즉시 실행해 쓰기 좋습니다.",
-        "기존 유료 상용 도구를 대체하는 가벼운 오픈소스 대안으로 삼아 비용 부담 없이 커스터마이징해 활용할 수 있습니다.",
-        "최신 AI·개발 워크플로우에 플러그인처럼 연결해 반복적인 엔지니어링 분석 및 구현 속도를 한층 높여줍니다.",
-        "주말 토이 프로젝트나 기술 스터디 주제로 삼아 내부 동작 원리를 직접 디버깅하며 역량을 넓히기에 더할 나위 없습니다.",
-        "복잡한 인프라 구축 시간을 아껴주는 검증된 템플릿 삼아 신규 서비스 프로토타이핑 기간을 단축할 때 큰 힘을 발휘합니다.",
-        "터미널이나 에이전트 자동화 스크립트와 연계해 나만의 맞춤형 백오피스·개발 유틸리티로 확장하기에 매우 유리합니다.",
-    ]
-    seen_full = set()
-    seen_suffix = set()
-    tail_idx = 0
-
-    for r in all_repos:
-        b = r.get("benefit_ko", "").strip()
-        suffix = b[-22:] if len(b) >= 22 else b
-        if not b or b in seen_full or suffix in seen_suffix:
-            short_name = r["full_name"].split("/")[-1]
-            lang = r.get("language", "Multi")
-            detail_ko = extract_distinct_detail_sentence(
-                r.get("summary_ko", ""),
-                r.get("readme_excerpt", ""),
-                r.get("description", ""),
-                r["full_name"],
-            )
-            chosen_tail = backup_tails[tail_idx % len(backup_tails)]
-            tail_idx += 1
-            b = f"[{short_name} ({lang}) 맞춤 활용] '{detail_ko}' 중심의 고유 기능과 구성을 갖추고 있어, {chosen_tail}"
-            r["benefit_ko"] = b
-            suffix = b[-22:]
-        seen_full.add(b)
-        seen_suffix.add(suffix)
-
-
-def summarize_with_gemini_batch(repos):
-    """GEMINI_API_KEY가 설정되어 있으면 Gemini 모델을 호출해 15개 레포의 (2. 내용 요약 / 3. 나에게 주는 도움)을 한 번에 생성합니다."""
-    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
-    if not api_key:
-        return False
-
-    items_payload = []
-    for r in repos:
-        items_payload.append({
-            "full_name": r["full_name"],
-            "language": r.get("language", "Multi"),
-            "description": r.get("description", ""),
-            "readme_excerpt": r.get("readme_excerpt", ""),
-            "topics": r.get("topics", [])
-        })
-
-    prompt = (
-        "너는 한국인 개발자를 위한 전담 GitHub 오픈소스 큐레이터야. "
-        "다음 JSON 목록에 있는 각 GitHub 레포지토리에 대해 반드시 한국어로 다음 3가지 필드를 작성해서 JSON 배열로만 응답해줘.\n"
-        "[절대 규칙]\n"
-        "- 15개 아이템의 benefit_ko 문장이 서로 비슷하거나 복사+붙여넣기처럼 보이면 절대 안 됨!\n"
-        "- 각 레포의 실제 고유 기능을 정확히 반영해 1:1 맞춤형 활용법을 작성할 것.\n"
-        "- Agents를 '상담원', Mermaid를 '인어'처럼 기계번역투로 쓰지 말 것.\n\n"
-        "필드 명세:\n"
-        "1) full_name: 원래 레포 이름 그대로\n"
-        "2) summary_ko: 이 아이템이 구체적으로 무엇이고 어떤 기능을 하는 도구인지 2~3문장으로 명쾌하게 요약\n"
-        "3) benefit_ko: '[레포이름 맞춤 활용]'으로 시작하며, 이 아이템의 고유 기능을 내가(실무 개발/자동화/아키텍처 참고 또는 집 PC 설치/취미) 어떻게 써먹을 수 있는지 구체적으로 1~2문장 설명\n\n"
-        f"대상 목록:\n{json.dumps(items_payload, ensure_ascii=False)}"
-    )
-
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
-    body = json.dumps({
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"responseMimeType": "application/json"}
-    }).encode("utf-8")
-
-    try:
-        req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"}, method="POST")
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            res_json = json.loads(resp.read().decode("utf-8"))
-        text_out = res_json["candidates"][0]["content"]["parts"][0]["text"]
-        parsed = json.loads(text_out)
-        lookup = {item["full_name"]: item for item in parsed if isinstance(item, dict) and "full_name" in item}
-        for r in repos:
-            if r["full_name"] in lookup:
-                r["summary_ko"] = postprocess_ko_dev_terms(lookup[r["full_name"]].get("summary_ko", r.get("summary_ko", "")))
-                r["benefit_ko"] = postprocess_ko_dev_terms(lookup[r["full_name"]].get("benefit_ko", r.get("benefit_ko", "")))
-        print("[SUCCESS] Gemini AI API를 통해 15개 아이템의 1:1 맞춤형 한국어 요약 및 활용 포인트를 생성했습니다!")
-        return True
-    except Exception as e:
-        print(f"[INFO] Gemini API 미사용({e}) -> 내장 1:1 맞춤 도메인 분석 + 다중 한국어 번역 엔진으로 생성합니다.")
-        return False
-
-
 def enrich_repo_details(repo):
     full_name = repo["full_name"]
     desc = html_unescape_clean(repo.get("description", "").strip())
@@ -729,18 +260,6 @@ def enrich_repo_details(repo):
     repo["readme_excerpt"] = readme_excerpt
     repo["topics"] = topics[:5]
 
-    combined_en = (
-        f"{desc}. {readme_excerpt}".strip(". ")
-        if (desc and readme_excerpt and readme_excerpt[:25].lower() not in desc.lower())
-        else (desc or readme_excerpt)
-    )
-    summary_ko = translate_en_to_ko(combined_en, full_name=full_name)
-
-    if not summary_ko or len(summary_ko.strip()) < 10:
-        summary_ko = f"{full_name} ({repo.get('language', 'Multi')}) 기반의 오픈소스 프로젝트로, 최근 GitHub 커뮤니티에서 높은 평가를 받고 있는 도구입니다."
-
-    repo["summary_ko"] = summary_ko
-    repo["benefit_ko"] = generate_personal_benefit(repo, summary_ko)
     return repo
 
 
@@ -912,12 +431,112 @@ def select_with_owner_cap(candidates, count, used_names, used_owners, max_per_ow
     return selected
 
 
+GEMINI_MODEL = "gemini-2.5-flash"
+CANDIDATE_POOL_SIZE = 30
+EXTRA_FUN_POOL_SIZE = 8
+
+GEMINI_RESPONSE_SCHEMA = {
+    "type": "ARRAY",
+    "items": {
+        "type": "OBJECT",
+        "properties": {
+            "full_name": {"type": "STRING"},
+            "section": {"type": "STRING", "enum": ["work", "fun", "skip"]},
+            "summary_ko": {"type": "STRING"},
+            "benefit_ko": {"type": "STRING"},
+        },
+        "required": ["full_name", "section", "summary_ko", "benefit_ko"],
+    },
+}
+
+
+def curate_with_gemini(repos):
+    """Ask Gemini to classify each repo (work/fun/skip) and write its Korean summary and use case.
+
+    Returns {full_name: item} on success, or None when the key is missing or the call fails.
+    """
+    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if not api_key:
+        return None
+
+    items_payload = [
+        {
+            "full_name": r["full_name"],
+            "language": r.get("language", "Multi"),
+            "description": r.get("description", ""),
+            "readme_excerpt": r.get("readme_excerpt", ""),
+            "topics": r.get("topics", []),
+        }
+        for r in repos
+    ]
+
+    prompt = (
+        "너는 한국인 개발자에게 GitHub 오픈소스를 골라 소개하는 큐레이터야. "
+        "아래 JSON 목록의 레포마다 다음 필드를 채워 JSON 배열로 답해.\n\n"
+        "- full_name: 입력 그대로\n"
+        "- section: 이 레포를 어디에 실을지\n"
+        "  - work: 개발·업무에 쓰는 도구, 라이브러리, 프레임워크, AI 에이전트·코딩 도구, 인프라\n"
+        "  - fun: 개인 PC·집에서 쓰는 앱, 셀프호스팅, 게임, 미디어, 취미·DIY 하드웨어, 개인 생산성\n"
+        "  - skip: 소개할 가치가 낮음 (목록·링크 모음, 과제 저장소, 설명이 거의 없음, 스팸)\n"
+        "- summary_ko: 이 레포가 무엇이고 무엇을 하는지 2문장 이내 한국어. 과장·홍보 문구 없이 사실만.\n"
+        "- benefit_ko: 개발자인 내가 이걸 어떻게 써볼 수 있는지 구체적인 상황 1문장. "
+        "레포 이름으로 시작하지 말고, 다른 레포와 같은 문장 구조를 반복하지 마.\n\n"
+        "기술 용어는 원어를 살려 (Agent를 '상담원', Mermaid를 '인어'로 옮기지 마).\n\n"
+        f"목록:\n{json.dumps(items_payload, ensure_ascii=False)}"
+    )
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+    body = json.dumps({
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "responseMimeType": "application/json",
+            "responseSchema": GEMINI_RESPONSE_SCHEMA,
+        },
+    }).encode("utf-8")
+
+    try:
+        req = urllib.request.Request(
+            url, data=body, method="POST",
+            headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
+        )
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            res_json = json.loads(resp.read().decode("utf-8"))
+        text_out = res_json["candidates"][0]["content"]["parts"][0]["text"]
+        parsed = json.loads(text_out)
+        result = {item["full_name"]: item for item in parsed if isinstance(item, dict) and item.get("full_name")}
+        print(f"[INFO] Gemini가 {len(result)}/{len(repos)}개 레포를 분류·요약했습니다.")
+        return result
+    except Exception as e:
+        print(f"[INFO] Gemini 호출 실패({e}) -> 키워드 분류 + 설명 번역으로 대체합니다.")
+        return None
+
+
+def apply_fallback_summaries(repos):
+    """Without Gemini: translate the description as the summary and leave the use case empty."""
+    for r in repos:
+        desc = r.get("description", "")
+        readme = r.get("readme_excerpt", "")
+        combined_en = (
+            f"{desc}. {readme}".strip(". ")
+            if (desc and readme and readme[:25].lower() not in desc.lower())
+            else (desc or readme)
+        )
+        r["summary_ko"] = translate_en_to_ko(combined_en) or desc
+        r["benefit_ko"] = ""
+
+
+def keyword_section(r, work_kw, fun_kw):
+    text = f"{r['full_name']} {r['description']} {r['language']} {' '.join(r.get('topics', []))}".lower()
+    fun_score = sum(1 for k in fun_kw if has_word(text, k))
+    work_score = sum(1 for k in work_kw if has_word(text, k))
+    return "fun" if fun_score > work_score else "work"
+
+
 def categorize_repos(trending_repos, surging_repos, config):
     """
-    [v5.1 Multi-Horizon 통합 3대 섹션 큐레이션]
-    - 섹션 1 (🔥 급등 루키 & 핫이슈): Daily + Weekly + 14일 신생 통합 풀에서 일평균 별점 상승 속도(daily_velocity) 1위~5위 (morluto/rea 1위 보장 & Owner Cap=1 도배 차단)
-    - 섹션 2 (💼 검증된 업무 & 개발 대장주): 누적 별점 권위도(Authority Score) 최상위 (superpowers, mattpocock/skills, ECC, ghidra 등 기존 강자 최우선 수록!)
-    - 섹션 3 (🎮 검증된 개인 & 취미 스테디셀러): 누적 별점이 높고 실용적인 로컬 앱/취미 프로젝트 + 알짜 루키 균형 배치
+    섹션 1 (급등): 일평균 별 증가 속도 순.
+    섹션 2·3 (업무·취미): 권위 점수 상위 후보를 Gemini가 work/fun/skip으로 분류하고 요약.
+    Gemini를 못 쓰면 config 키워드로 분류하고 설명을 번역해 요약으로 씁니다.
     """
     count = config["curation"].get("items_per_section", 5)
     work_kw = [k.lower() for k in config["curation"].get("work_keywords", [])]
@@ -943,61 +562,47 @@ def categorize_repos(trending_repos, surging_repos, config):
     used_names = set()
     used_owners = {}
 
-    # 1. 섹션 1: 일평균 별점 상승 속도(Daily Velocity) TOP 5 (동일 제작자 최대 1개 제한!)
+    # 1. 섹션 1: 일평균 별점 상승 속도 TOP N (동일 제작자 최대 1개)
     surge_sorted = sorted(combined_all, key=lambda x: (x["daily_velocity"], x["total_stars"]), reverse=True)
     surge_list = select_with_owner_cap(surge_sorted, count, used_names, used_owners, max_per_owner=1)
 
-    # 2. 업무(Work) vs 개인/취미(Fun) 후보군 분리
-    work_candidates = []
-    fun_candidates = []
+    # 2. 업무·취미 후보 풀: 권위 점수 상위 + 셀프호스팅·데스크톱 앱 보강분
+    rest = [r for r in combined_all if r["full_name"] not in used_names]
+    pool = sorted(rest, key=lambda x: (compute_authority_score(x), x["total_stars"]), reverse=True)[:CANDIDATE_POOL_SIZE]
+    pool_names = {r["full_name"] for r in pool} | used_names
+    # GitHub search rejects OR between qualifiers, so query each topic separately.
+    extra_fun = []
+    for topic in ("self-hosted", "desktop-app", "productivity"):
+        for r in fetch_topic_repos(f"topic:{topic}", "셀프호스팅·데스크톱 앱"):
+            if r["full_name"] not in pool_names:
+                r["from_fun_topic"] = True
+                extra_fun.append(r)
+                pool_names.add(r["full_name"])
+    extra_fun.sort(key=lambda x: x["total_stars"], reverse=True)
+    pool += extra_fun[:EXTRA_FUN_POOL_SIZE]
 
-    explicit_fun_domains = ["voicestudio", "linkswift", "digup", "aurelio-finance", "d2r-mobile", "omdrop-owl", "anyps5", "artcraft", "esp32-iphone-agent"]
-    for r in combined_all:
-        if r["full_name"] in used_names:
-            continue
-        text = f"{r['full_name']} {r['description']} {r['language']} {' '.join(r.get('topics', []))}".lower()
-        fun_score = sum(1 for k in fun_kw if has_word(text, k))
-        work_score = sum(1 for k in work_kw if has_word(text, k))
-        if any(d in text for d in explicit_fun_domains) or (fun_score > work_score):
-            r["is_pure_fun"] = True
-            fun_candidates.append(r)
-        else:
-            r["is_pure_fun"] = False
-            work_candidates.append(r)
-
-    # 섹션 2 (업무 & 개발 대장주): 하이브리드 권위 점수(누적 별점 가중치 + 모멘텀) 순으로 정렬!
-    work_sorted = sorted(work_candidates, key=lambda x: (compute_authority_score(x), x["total_stars"]), reverse=True)
-    work_list = select_with_owner_cap(work_sorted, count, used_names, used_owners, max_per_owner=1)
-
-    # 섹션 3 (개인 & 취미 스테디셀러): 진짜 개인/취미/데스크톱 앱(is_pure_fun=True)을 1순위로 두고, 그 안에서 권위 점수(Authority Score) 순 정렬!
-    if len(fun_candidates) < count:
-        extra_fun = fetch_topic_repos("topic:self-hosted OR topic:desktop-app OR topic:productivity", "검증된 스테디셀러")
-        for ef in extra_fun:
-            if ef["full_name"] not in used_names:
-                ef["is_pure_fun"] = True
-                fun_candidates.append(ef)
-
-    for r in combined_all:
-        if r["full_name"] not in used_names and r not in fun_candidates:
-            r["is_pure_fun"] = False
-            fun_candidates.append(r)
-
-    fun_sorted = sorted(
-        fun_candidates,
-        key=lambda x: (1 if x.get("is_pure_fun") else 0, compute_authority_score(x), x["total_stars"]),
-        reverse=True,
-    )
-    fun_list = select_with_owner_cap(fun_sorted, count, used_names, used_owners, max_per_owner=1)
-
-    all_selected = surge_list + work_list + fun_list
     with ThreadPoolExecutor(max_workers=5) as executor:
-        list(executor.map(enrich_repo_details, all_selected))
+        list(executor.map(enrich_repo_details, surge_list + pool))
 
-    # GEMINI_API_KEY가 있으면 Gemini AI로 한 번 더 고품질 요약 덮어쓰기
-    summarize_with_gemini_batch(all_selected)
+    curated = curate_with_gemini(surge_list + pool)
+    for r in surge_list + pool:
+        item = (curated or {}).get(r["full_name"])
+        if item:
+            r["section"] = item["section"]
+            r["summary_ko"] = postprocess_ko_dev_terms(item["summary_ko"])
+            r["benefit_ko"] = postprocess_ko_dev_terms(item["benefit_ko"])
+        else:
+            r["section"] = "fun" if r.get("from_fun_topic") else keyword_section(r, work_kw, fun_kw)
 
-    # 최종 중복/복붙 방지 검증 게이트 실행
-    verify_and_deduplicate_benefits(all_selected)
+    pool_sorted = sorted(pool, key=lambda x: (compute_authority_score(x), x["total_stars"]), reverse=True)
+    work_list = select_with_owner_cap([r for r in pool_sorted if r["section"] == "work"], count, used_names, used_owners)
+    fun_list = select_with_owner_cap([r for r in pool_sorted if r["section"] == "fun"], count, used_names, used_owners)
+    # Keep sections full when one category runs short.
+    leftovers = [r for r in pool_sorted if r["section"] != "skip"]
+    work_list += select_with_owner_cap(leftovers, count - len(work_list), used_names, used_owners) if len(work_list) < count else []
+    fun_list += select_with_owner_cap(leftovers, count - len(fun_list), used_names, used_owners) if len(fun_list) < count else []
+
+    apply_fallback_summaries([r for r in surge_list + work_list + fun_list if "summary_ko" not in r])
 
     return surge_list, work_list, fun_list
 
@@ -1042,11 +647,15 @@ def repo_meta_line(r, category):
 def repo_text_html(r, category, name_size):
     # Drop the legacy "[name 맞춤 활용]" prefix; the line is labelled below.
     benefit = re.sub(r"^\s*\[[^\]]*\]\s*", "", r.get("benefit_ko", ""))
+    benefit_html = (
+        f'<p style="margin:10px 0 0 0; font-size:16px; line-height:1.6; color:{INK};"><b style="color:{ACCENT};">이렇게 써보세요</b> {escape(benefit)}</p>'
+        if benefit else ""
+    )
     return f"""
       <h3 style="margin:0; font-size:{name_size}px; line-height:1.3; font-weight:700; color:{INK};"><a href="{escape(r['url'])}" target="_blank" style="color:{INK}; text-decoration:none;">{escape(r['full_name'])}</a></h3>
       <p style="margin:6px 0 0 0; font-size:14px; line-height:1.5; color:{INK_SOFT};">{escape(repo_meta_line(r, category))}</p>
       <p style="margin:12px 0 0 0; font-size:16px; line-height:1.6; color:{INK};">{escape(r.get('summary_ko', ''))}</p>
-      <p style="margin:10px 0 0 0; font-size:16px; line-height:1.6; color:{INK};"><b style="color:{ACCENT};">이렇게 써보세요</b> {escape(benefit)}</p>
+      {benefit_html}
       <p style="margin:12px 0 0 0; font-size:16px;"><a href="{escape(r['url'])}" target="_blank" style="color:{ACCENT}; font-weight:700; text-decoration:underline;">GitHub에서 보기</a></p>
     """
 

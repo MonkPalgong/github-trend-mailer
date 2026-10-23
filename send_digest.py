@@ -431,7 +431,8 @@ def select_with_owner_cap(candidates, count, used_names, used_owners, max_per_ow
     return selected
 
 
-GEMINI_MODEL = "gemini-3.5-flash-lite"
+# Aliases Google keeps pointing at current models, tried in order, so a retired model id cannot break the run.
+GEMINI_MODELS = ["gemini-flash-lite-latest", "gemini-flash-latest"]
 CANDIDATE_POOL_SIZE = 30
 EXTRA_FUN_POOL_SIZE = 8
 
@@ -485,7 +486,6 @@ def curate_with_gemini(repos):
         f"목록:\n{json.dumps(items_payload, ensure_ascii=False)}"
     )
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
     body = json.dumps({
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
@@ -494,21 +494,25 @@ def curate_with_gemini(repos):
         },
     }).encode("utf-8")
 
-    try:
-        req = urllib.request.Request(
-            url, data=body, method="POST",
-            headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
-        )
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            res_json = json.loads(resp.read().decode("utf-8"))
-        text_out = res_json["candidates"][0]["content"]["parts"][0]["text"]
-        parsed = json.loads(text_out)
-        result = {item["full_name"]: item for item in parsed if isinstance(item, dict) and item.get("full_name")}
-        print(f"[INFO] Gemini가 {len(result)}/{len(repos)}개 레포를 분류·요약했습니다.")
-        return result
-    except Exception as e:
-        print(f"[INFO] Gemini 호출 실패({e}) -> 키워드 분류 + 설명 번역으로 대체합니다.")
-        return None
+    for model in GEMINI_MODELS:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+        try:
+            req = urllib.request.Request(
+                url, data=body, method="POST",
+                headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
+            )
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                res_json = json.loads(resp.read().decode("utf-8"))
+            text_out = res_json["candidates"][0]["content"]["parts"][0]["text"]
+            parsed = json.loads(text_out)
+            result = {item["full_name"]: item for item in parsed if isinstance(item, dict) and item.get("full_name")}
+            print(f"[INFO] Gemini({model})가 {len(result)}/{len(repos)}개 레포를 분류·요약했습니다.")
+            return result
+        except Exception as e:
+            print(f"[WARN] Gemini({model}) 호출 실패: {e}")
+
+    print("[WARN] 모든 Gemini 모델 호출 실패 -> 키워드 분류 + 설명 번역으로 대체합니다.")
+    return None
 
 
 def apply_fallback_summaries(repos):

@@ -87,7 +87,7 @@ def main():
 
     print(f"\n[완료!] GitHub 레포지토리 배포 성공: https://github.com/{owner}/{repo_name}")
     print(f"이제 https://github.com/{owner}/{repo_name}/settings/secrets/actions 에서")
-    print("SMTP_HOST(smtp.naver.com), SMTP_PORT(587), SMTP_USER(kusari0215@naver.com), SMTP_PASSWORD, RECIPIENT_EMAIL(kusari0215@naver.com) 만 등록하시면 PC가 꺼져 있어도 매주 자동 발송됩니다!")
+    print("GEMINI_API_KEY, SMTP_HOST(smtp.naver.com), SMTP_PORT(587), SMTP_USER(kusari0215@naver.com), SMTP_PASSWORD, RECIPIENT_EMAIL(kusari0215@naver.com) 만 등록하시면 PC가 꺼져 있어도 매주 자동 발송됩니다!")
 
 
 if __name__ == "__main__":

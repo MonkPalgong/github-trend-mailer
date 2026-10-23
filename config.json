@@ -1,7 +1,6 @@
 {
   "_안내": "코드 수정 없이 아래 항목만 바꾸면 발송 주기, 시간, 섹션별 추천 개수, 관심 키워드를 즉시 변경할 수 있습니다.",
   "schedule": {
-    "preset": "weekly_saturday_morning",
     "day_of_week": "MON,WED,FRI",
     "hour_kst": 6,
     "minute_kst": 0,
@@ -16,6 +15,7 @@
     "trending_window": "daily",
     "surge_created_within_days": 14,
     "items_per_section": 5,
+    "history_exclude_days": 28,
     "work_keywords": [
       "agent",
       "llm",

@@ -1,0 +1,73 @@
+{
+  "_안내": "코드 수정 없이 아래 항목만 바꾸면 발송 주기, 시간, 섹션별 추천 개수, 관심 키워드를 즉시 변경할 수 있습니다.",
+  "schedule": {
+    "preset": "weekly_saturday_morning",
+    "day_of_week": "MON,WED,FRI",
+    "hour_kst": 6,
+    "minute_kst": 0,
+    "_프리셋_예시": {
+      "daily_morning": "매일 아침 8시 (day_of_week: '*', hour_kst: 8)",
+      "weekly_saturday_morning": "매주 토요일 오전 9시 (day_of_week: 'SAT', hour_kst: 9)",
+      "weekly_monday_morning": "매주 월요일 오전 8시 (day_of_week: 'MON', hour_kst: 8)",
+      "twice_a_week": "매주 수/토 오전 9시 (day_of_week: 'WED,SAT', hour_kst: 9)"
+    }
+  },
+  "curation": {
+    "trending_window": "daily",
+    "surge_created_within_days": 14,
+    "items_per_section": 5,
+    "work_keywords": [
+      "agent",
+      "llm",
+      "mcp",
+      "api",
+      "cli",
+      "sdk",
+      "workflow",
+      "automation",
+      "framework",
+      "compiler",
+      "database",
+      "testing",
+      "benchmark",
+      "devops",
+      "kubernetes",
+      "docker",
+      "security",
+      "performance",
+      "typescript",
+      "python",
+      "rust",
+      "go"
+    ],
+    "fun_keywords": [
+      "self-hosted",
+      "selfhosted",
+      "game",
+      "retro",
+      "music",
+      "video",
+      "photo",
+      "home",
+      "personal",
+      "note",
+      "markdown",
+      "tui",
+      "terminal",
+      "ascii",
+      "desktop",
+      "app",
+      "bot",
+      "rss",
+      "media",
+      "ebook",
+      "wallpaper",
+      "fun",
+      "toy"
+    ]
+  },
+  "email": {
+    "subject_prefix": "📬 [GitHub 트렌드 매거진]",
+    "save_html_preview": true
+  }
+}

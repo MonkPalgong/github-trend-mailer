@@ -1,0 +1,36 @@
+name: GitHub Trend Email Digest
+
+on:
+  schedule:
+    # 자동 생성됨: 한국 시간(KST) 기준 [MON,WED,FRI 06:00] 실행
+    - cron: '0 21 * * 0,2,4'
+  workflow_dispatch:
+    inputs:
+      trending_window:
+        description: '수집 기간 선택 (daily / weekly / monthly)'
+        required: false
+        default: 'daily'
+
+jobs:
+  send-digest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate and Send GitHub Trend Digest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL || 'kusari0215@naver.com' }}
+        run: python send_digest.py

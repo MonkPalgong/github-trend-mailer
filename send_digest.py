@@ -1002,137 +1002,116 @@ def categorize_repos(trending_repos, surging_repos, config):
     return surge_list, work_list, fun_list
 
 
-def render_section_html(title, subtitle, accent_color, bg_soft, repos, category):
+KST = timezone(timedelta(hours=9))
+KO_WEEKDAYS = ["월", "화", "수", "목", "금", "토", "일"]
+CRON_DAY_KO = {"MON": "월", "TUE": "화", "WED": "수", "THU": "목", "FRI": "금", "SAT": "토", "SUN": "일"}
+
+
+def now_kst():
+    return datetime.now(KST)
+
+
+def format_schedule_ko(sched):
+    days = sched.get("day_of_week", "*")
+    day_label = "매일" if days.strip() == "*" else "·".join(CRON_DAY_KO.get(d.strip().upper(), d.strip()) for d in days.split(","))
+    return f"{day_label} {sched['hour_kst']:02d}:{sched['minute_kst']:02d}"
+
+
+def render_section_html(title, subtitle, accent_color, repos, category):
     cards_html = ""
     for idx, r in enumerate(repos, 1):
         vel = r.get("daily_velocity", r.get("gained_stars", 0))
         weekly_gained = r.get("weekly_gained", 0)
         total = r["total_stars"]
-        lang = r.get("language", "Multi")
-        is_rookie = r.get("is_new_rookie", False)
+        lang = r.get("language") or "Multi"
 
         if category == "surge":
             if weekly_gained >= 5000:
-                badge = f"🔥 주간 +{weekly_gained:,}⭐ 폭발 (일평균 +{vel:,}⭐ / 누적 {total:,}⭐)"
-            elif is_rookie:
-                badge = f"🚀 신생 루키 · 일평균 +{vel:,}⭐ 급등 (누적 {total:,}⭐)"
+                badge = f"주간 +{weekly_gained:,}⭐ · 총 {total:,}⭐"
             else:
-                badge = f"🔥 일평균 +{vel:,}⭐ 급등 (누적 {total:,}⭐)"
+                badge = f"하루 +{vel:,}⭐ · 총 {total:,}⭐"
+            if r.get("is_new_rookie"):
+                badge = "신생 · " + badge
         else:
-            tier_label = "🏆 검증된 대장주" if total >= 20000 else ("⭐ 인기 상승작" if total >= 5000 else "🌱 주목할 신작")
-            badge = f"{tier_label} · 누적 {total:,}⭐ (일평균 +{vel:,}⭐)"
+            badge = f"총 {total:,}⭐ · 하루 +{vel:,}⭐"
 
+        topics = r.get("topics") or []
         topics_html = ""
-        if r.get("topics"):
-            tags = "".join(
-                f'<span style="display:inline-block; background:#0f172a; color:#94a3b8; border:1px solid #334155; padding:1px 8px; border-radius:999px; font-size:11px; margin-right:5px;">#{escape(t)}</span>'
-                for t in r["topics"]
+        if topics:
+            topics_html = (
+                f'<div style="margin-top:8px; font-size:12px; color:#8b95a1;">'
+                f'{" ".join("#" + escape(t) for t in topics[:4])}</div>'
             )
-            topics_html = f'<div style="margin-top:6px;">{tags}</div>'
+
+        # Drop the legacy "[name 맞춤 활용]" prefix; the card already labels this line.
+        benefit = re.sub(r"^\s*\[[^\]]*\]\s*", "", r.get("benefit_ko", ""))
 
         cards_html += f"""
-        <div style="background:#1e293b; border:1px solid #334155; border-left:5px solid {accent_color}; border-radius:12px; padding:18px 20px; margin-bottom:16px;">
-          <!-- 1. 아이템 -->
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px; border-bottom:1px solid #334155; padding-bottom:10px;">
-            <div>
-              <span style="background:{bg_soft}; color:{accent_color}; padding:2px 8px; border-radius:6px; font-size:11.5px; font-weight:800; margin-right:6px;">
-                1. 아이템
-              </span>
-              <a href="{escape(r['url'])}" target="_blank" style="color:#38bdf8; font-size:17px; font-weight:800; text-decoration:none;">
-                {idx}. {escape(r['full_name'])}
-              </a>
-              <span style="color:#94a3b8; font-size:12px; margin-left:6px;">[{escape(lang)}]</span>
-            </div>
-            <span style="background:{bg_soft}; color:{accent_color}; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700;">
-              {escape(badge)}
-            </span>
-          </div>
-
-          <!-- 2. 이 아이템의 내용 요약 -->
-          <div style="background:#0f172a; border:1px solid #1e293b; border-radius:8px; padding:12px 14px; margin-bottom:10px;">
-            <div style="color:#fbbf24; font-size:12px; font-weight:800; margin-bottom:4px;">
-              📌 2. 이 아이템의 내용 요약 (무엇인가요?)
-            </div>
-            <p style="color:#f8fafc; font-size:13.8px; margin:0; line-height:1.6;">
-              {escape(r.get('summary_ko', ''))}
-            </p>
-            {topics_html}
-          </div>
-
-          <!-- 3. 이 아이템이 나한테 어떤 도움이 될 것 같은지 -->
-          <div style="background:rgba(56,189,248,0.08); border-left:3px solid #38bdf8; border-radius:6px; padding:11px 14px;">
-            <div style="color:#38bdf8; font-size:12px; font-weight:800; margin-bottom:3px;">
-              💡 3. 이 아이템이 나한테 어떤 도움이 될까요? (1:1 맞춤 활용 포인트)
-            </div>
-            <p style="color:#e0f2fe; font-size:13.3px; margin:0; line-height:1.55;">
-              {escape(r.get('benefit_ko', ''))}
-            </p>
-          </div>
-        </div>
+        <tr><td style="padding:0 0 12px 0;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff; border:1px solid #e5e8eb; border-radius:10px;">
+            <tr><td style="padding:16px 18px;">
+              <a href="{escape(r['url'])}" target="_blank" style="color:#191f28; font-size:16px; font-weight:700; text-decoration:none;">{idx}. {escape(r['full_name'])}</a>
+              <div style="margin-top:4px; font-size:12px; color:#8b95a1;">{escape(lang)} · {escape(badge)}</div>
+              <p style="margin:10px 0 0 0; font-size:14px; line-height:1.6; color:#333d4b;">{escape(r.get('summary_ko', ''))}</p>
+              <p style="margin:8px 0 0 0; font-size:13px; line-height:1.6; color:#4e5968;"><b style="color:{accent_color};">활용</b>&nbsp; {escape(benefit)}</p>
+              {topics_html}
+            </td></tr>
+          </table>
+        </td></tr>
         """
 
     return f"""
-    <div style="margin-bottom:32px;">
-      <h2 style="color:{accent_color}; font-size:19px; font-weight:800; margin-bottom:4px;">{escape(title)}</h2>
-      <p style="color:#94a3b8; font-size:13px; margin-bottom:14px;">{escape(subtitle)}</p>
-      {cards_html}
-    </div>
+    <tr><td style="padding:24px 0 10px 0;">
+      <div style="font-size:18px; font-weight:800; color:#191f28; border-left:4px solid {accent_color}; padding-left:10px;">{escape(title)}</div>
+      <div style="margin-top:4px; padding-left:14px; font-size:13px; color:#8b95a1;">{escape(subtitle)}</div>
+    </td></tr>
+    {cards_html}
     """
 
 
 def generate_newsletter_html(surge_list, work_list, fun_list, config):
-    now_str = datetime.now().strftime("%Y-%m-%d (%a) %H:%M KST")
-    sched = config["schedule"]
-    sched_desc = f"매주 {sched['day_of_week']} {sched['hour_kst']:02d}:{sched['minute_kst']:02d} KST"
+    now = now_kst()
+    date_str = f"{now:%Y.%m.%d} ({KO_WEEKDAYS[now.weekday()]})"
+    sched_desc = format_schedule_ko(config["schedule"])
 
     sec1 = render_section_html(
-        "🔥 섹션 1. 주간·일간 통합 별점 급등 TOP 5 (Multi-Window Velocity)",
-        "Daily + Weekly + 14일 신생 루키 통합 풀에서 가장 폭발적으로 별점이 치솟은 핫이슈 (동일 제작자 도배 방지 적용)",
-        "#fbbf24", "rgba(251,191,36,0.15)", surge_list, "surge"
+        "🔥 지금 뜨는 레포", "최근 하루·한 주 사이 별이 가장 빠르게 늘어난 프로젝트",
+        "#f59e0b", surge_list, "surge"
     )
     sec2 = render_section_html(
-        "💼 섹션 2. 검증된 업무 & 개발 대장주 (Proven Authority & DevTools TOP 5)",
-        "단기 급등 착시에 밀리지 않도록 '누적 별점 권위도(Total Stars) + 현재 트렌딩 활성도'로 엄선한 실무 명작",
-        "#38bdf8", "rgba(56,189,248,0.15)", work_list, "work"
+        "💼 업무·개발 도구", "누적 인기와 최근 활동이 함께 높은 개발 도구",
+        "#3182f6", work_list, "work"
     )
     sec3 = render_section_html(
-        "🎮 섹션 3. 개인 활용 & 취미 스테디셀러 (Personal & Fun TOP 5)",
-        "누적 별점으로 검증된 고품격 데스크톱/온디바이스 유틸리티 및 주말 취미 프로젝트",
-        "#f472b6", "rgba(244,114,182,0.15)", fun_list, "fun"
-    )
-
-    all_links = "".join(
-        f'<li style="margin-bottom:6px;"><a href="{escape(r["url"])}" target="_blank" style="color:#38bdf8; text-decoration:none; font-weight:700;">{escape(r["full_name"])}</a> (⭐ {r["total_stars"]:,}) — <span style="color:#94a3b8;">{escape(r["url"])}</span></li>'
-        for r in sorted(surge_list + work_list + fun_list, key=lambda x: x["total_stars"], reverse=True)
+        "🎮 개인·취미 프로젝트", "집 PC에 깔거나 주말에 만져보기 좋은 프로젝트",
+        "#e5508c", fun_list, "fun"
     )
 
     return f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>GitHub 트렌드 올인원 이메일 매거진 (v5.1 Multi-Window 에디션)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub 트렌드 매거진</title>
 </head>
-<body style="margin:0; padding:28px 16px; background-color:#0f172a; color:#f8fafc; font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-  <div style="max-width:780px; margin:0 auto; background:#0f172a;">
-    <div style="background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%); border:1px solid #334155; border-radius:14px; padding:24px; margin-bottom:24px;">
-      <div style="display:inline-block; background:rgba(56,189,248,0.15); color:#38bdf8; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; margin-bottom:8px;">
-        📬 Automated GitHub Trend Digest v5.1 ({escape(sched_desc)})
-      </div>
-      <h1 style="margin:0 0 6px 0; font-size:22px; color:#f8fafc;">이번 주 GitHub 트렌드 매거진 (주간·일간 급등 · 검증된 대장주 · 개인 스테디셀러)</h1>
-      <p style="margin:0; color:#94a3b8; font-size:13px;">발행 시각: {escape(now_str)} | 수신: kusari0215@naver.com | v5.1 Multi-Window 통합 수집(Daily+Weekly+14d) + 하이브리드 대장주 보장 + 동일 제작자 1개 제한</p>
-    </div>
-
-    {sec1}
-    {sec2}
-    {sec3}
-
-    <div style="background:#1e293b; border:1px solid #334155; border-radius:12px; padding:18px 20px; margin-top:24px;">
-      <h3 style="margin:0 0 10px 0; font-size:15px; color:#f8fafc;">🔗 이번 호에 수록된 전체 GitHub 주소 (⭐ 누적 별점 내림차순)</h3>
-      <ul style="margin:0; padding-left:18px; font-size:13px; color:#cbd5e1; line-height:1.6;">
-        {all_links}
-      </ul>
-    </div>
-  </div>
+<body style="margin:0; padding:0; background:#f2f4f6; font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f2f4f6;">
+    <tr><td align="center" style="padding:24px 12px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">
+        <tr><td style="padding:4px 2px 8px 2px;">
+          <div style="font-size:12px; color:#8b95a1;">{escape(date_str)} · {escape(sched_desc)} 발송</div>
+          <div style="margin-top:6px; font-size:24px; font-weight:800; color:#191f28;">GitHub 트렌드 매거진</div>
+          <div style="margin-top:6px; font-size:14px; color:#4e5968;">요즘 뜨는 레포, 일에 쓸 도구, 취미로 만질 프로젝트를 골랐어요.</div>
+        </td></tr>
+        {sec1}
+        {sec2}
+        {sec3}
+        <tr><td style="padding:16px 2px 0 2px; font-size:12px; color:#8b95a1;">
+          GitHub Trending과 GitHub Search API로 자동 수집했습니다.
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
 </body>
 </html>"""
 
@@ -1140,7 +1119,8 @@ def generate_newsletter_html(surge_list, work_list, fun_list, config):
 def send_email_if_configured(html_body, config):
     recipient = os.environ.get("RECIPIENT_EMAIL", "kusari0215@naver.com").strip()
     subject_prefix = config["email"].get("subject_prefix", "📬 [GitHub 트렌드 매거진]")
-    subject = f"{subject_prefix} {datetime.now().strftime('%Y-%m-%d')} 주간·일간 통합 급등(REA 포함) & 대장주 리포트 (v5.1)"
+    now = now_kst()
+    subject = f"{subject_prefix} {now:%m/%d}({KO_WEEKDAYS[now.weekday()]}) 뜨는 레포 · 업무 도구 · 취미 프로젝트"
 
     resend_key = os.environ.get("RESEND_API_KEY", "").strip()
     if resend_key:
@@ -1216,7 +1196,7 @@ def main():
         with open(CACHE_JSON_PATH, "w", encoding="utf-8") as f:
             json.dump({"surge_list": surge_list, "work_list": work_list, "fun_list": fun_list}, f, ensure_ascii=False, indent=2)
 
-    print("[3/4] 3단 구조(1.아이템 / 2.내용요약 / 3.맞춤 활용 포인트) HTML 뉴스레터 생성 중...")
+    print("[3/4] HTML 뉴스레터 생성 중...")
     html_body = generate_newsletter_html(surge_list, work_list, fun_list, config)
 
     with open(PREVIEW_PATH, "w", encoding="utf-8") as f:

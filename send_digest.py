@@ -1006,6 +1006,13 @@ KST = timezone(timedelta(hours=9))
 KO_WEEKDAYS = ["월", "화", "수", "목", "금", "토", "일"]
 CRON_DAY_KO = {"MON": "월", "TUE": "화", "WED": "수", "THU": "목", "FRI": "금", "SAT": "토", "SUN": "일"}
 
+# Mail palette: one ground, one ink, one accent; surfaces separated by tone, not lines.
+GROUND = "#eef0f2"
+SURFACE = "#ffffff"
+INK = "#1b1d1f"
+INK_SOFT = "#4a4f55"
+ACCENT = "#0a6b4f"
+
 
 def now_kst():
     return datetime.now(KST)
@@ -1017,74 +1024,85 @@ def format_schedule_ko(sched):
     return f"{day_label} {sched['hour_kst']:02d}:{sched['minute_kst']:02d}"
 
 
-def render_section_html(title, subtitle, accent_color, repos, category):
-    cards_html = ""
-    for idx, r in enumerate(repos, 1):
-        vel = r.get("daily_velocity", r.get("gained_stars", 0))
-        weekly_gained = r.get("weekly_gained", 0)
-        total = r["total_stars"]
-        lang = r.get("language") or "Multi"
+def repo_meta_line(r, category):
+    vel = r.get("daily_velocity", r.get("gained_stars", 0))
+    weekly_gained = r.get("weekly_gained", 0)
+    total = r["total_stars"]
+    lang = r.get("language") or "Multi"
+    if category == "surge":
+        growth = f"이번 주 별 +{weekly_gained:,}" if weekly_gained >= 5000 else f"하루 별 +{vel:,}"
+        parts = [lang, growth, f"누적 {total:,}"]
+        if r.get("is_new_rookie"):
+            parts.insert(1, "새로 나온 프로젝트")
+    else:
+        parts = [lang, f"누적 별 {total:,}", f"하루 +{vel:,}"]
+    return " · ".join(parts)
 
+
+def repo_text_html(r, category, name_size):
+    # Drop the legacy "[name 맞춤 활용]" prefix; the line is labelled below.
+    benefit = re.sub(r"^\s*\[[^\]]*\]\s*", "", r.get("benefit_ko", ""))
+    return f"""
+      <h3 style="margin:0; font-size:{name_size}px; line-height:1.3; font-weight:700; color:{INK};"><a href="{escape(r['url'])}" target="_blank" style="color:{INK}; text-decoration:none;">{escape(r['full_name'])}</a></h3>
+      <p style="margin:6px 0 0 0; font-size:14px; line-height:1.5; color:{INK_SOFT};">{escape(repo_meta_line(r, category))}</p>
+      <p style="margin:12px 0 0 0; font-size:16px; line-height:1.6; color:{INK};">{escape(r.get('summary_ko', ''))}</p>
+      <p style="margin:10px 0 0 0; font-size:16px; line-height:1.6; color:{INK};"><b style="color:{ACCENT};">이렇게 써보세요</b> {escape(benefit)}</p>
+      <p style="margin:12px 0 0 0; font-size:16px;"><a href="{escape(r['url'])}" target="_blank" style="color:{ACCENT}; font-weight:700; text-decoration:underline;">GitHub에서 보기</a></p>
+    """
+
+
+def render_section_html(title, subtitle, repos, category):
+    rows = ""
+    for r in repos:
         if category == "surge":
-            if weekly_gained >= 5000:
-                badge = f"주간 +{weekly_gained:,}⭐ · 총 {total:,}⭐"
-            else:
-                badge = f"하루 +{vel:,}⭐ · 총 {total:,}⭐"
-            if r.get("is_new_rookie"):
-                badge = "신생 · " + badge
-        else:
-            badge = f"총 {total:,}⭐ · 하루 +{vel:,}⭐"
-
-        topics = r.get("topics") or []
-        topics_html = ""
-        if topics:
-            topics_html = (
-                f'<div style="margin-top:8px; font-size:12px; color:#8b95a1;">'
-                f'{" ".join("#" + escape(t) for t in topics[:4])}</div>'
-            )
-
-        # Drop the legacy "[name 맞춤 활용]" prefix; the card already labels this line.
-        benefit = re.sub(r"^\s*\[[^\]]*\]\s*", "", r.get("benefit_ko", ""))
-
-        cards_html += f"""
-        <tr><td style="padding:0 0 12px 0;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff; border:1px solid #e5e8eb; border-radius:10px;">
-            <tr><td style="padding:16px 18px;">
-              <a href="{escape(r['url'])}" target="_blank" style="color:#191f28; font-size:16px; font-weight:700; text-decoration:none;">{idx}. {escape(r['full_name'])}</a>
-              <div style="margin-top:4px; font-size:12px; color:#8b95a1;">{escape(lang)} · {escape(badge)}</div>
-              <p style="margin:10px 0 0 0; font-size:14px; line-height:1.6; color:#333d4b;">{escape(r.get('summary_ko', ''))}</p>
-              <p style="margin:8px 0 0 0; font-size:13px; line-height:1.6; color:#4e5968;"><b style="color:{accent_color};">활용</b>&nbsp; {escape(benefit)}</p>
-              {topics_html}
-            </td></tr>
+            # Lead section: each pick gets its own surface and the repo's GitHub social preview image.
+            owner_repo = escape(r["full_name"])
+            rows += f"""
+        <tr><td style="padding:0 0 20px 0;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:{SURFACE};">
+            <tr><td><a href="{escape(r['url'])}" target="_blank"><img src="https://opengraph.githubassets.com/1/{owner_repo}" width="600" alt="{owner_repo} 미리보기" style="display:block; width:100%; max-width:600px; height:auto; border:0;" /></a></td></tr>
+            <tr><td style="padding:20px 22px 24px 22px;">{repo_text_html(r, category, 22)}</td></tr>
           </table>
+        </td></tr>
+            """
+        else:
+            rows += f"""
+        <tr><td style="padding:0 22px 32px 22px;">{repo_text_html(r, category, 19)}</td></tr>
+            """
+
+    # Work picks sit on one white sheet; fun picks sit on the accent-tinted field.
+    sheet_bg = SURFACE if category == "work" else "#e3efe9"
+    if category == "surge":
+        body = rows
+    else:
+        body = f"""
+        <tr><td style="background:{sheet_bg}; padding:28px 0 0 0;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">{rows}</table>
         </td></tr>
         """
 
     return f"""
-    <tr><td style="padding:24px 0 10px 0;">
-      <div style="font-size:18px; font-weight:800; color:#191f28; border-left:4px solid {accent_color}; padding-left:10px;">{escape(title)}</div>
-      <div style="margin-top:4px; padding-left:14px; font-size:13px; color:#8b95a1;">{escape(subtitle)}</div>
+    <tr><td style="padding:44px 0 18px 0;">
+      <h2 style="margin:0; font-size:26px; line-height:1.25; font-weight:800; color:{INK};">{escape(title)}</h2>
+      <p style="margin:8px 0 0 0; font-size:15px; line-height:1.5; color:{INK_SOFT};">{escape(subtitle)}</p>
     </td></tr>
-    {cards_html}
+    {body}
     """
 
 
 def generate_newsletter_html(surge_list, work_list, fun_list, config):
     now = now_kst()
-    date_str = f"{now:%Y.%m.%d} ({KO_WEEKDAYS[now.weekday()]})"
+    date_str = f"{now.month}월 {now.day}일 {KO_WEEKDAYS[now.weekday()]}요일"
     sched_desc = format_schedule_ko(config["schedule"])
 
     sec1 = render_section_html(
-        "🔥 지금 뜨는 레포", "최근 하루·한 주 사이 별이 가장 빠르게 늘어난 프로젝트",
-        "#f59e0b", surge_list, "surge"
+        "지금 뜨는 레포", "최근 하루·한 주 사이 별이 가장 빠르게 늘어난 프로젝트예요.", surge_list, "surge"
     )
     sec2 = render_section_html(
-        "💼 업무·개발 도구", "누적 인기와 최근 활동이 함께 높은 개발 도구",
-        "#3182f6", work_list, "work"
+        "업무·개발 도구", "누적 인기와 최근 활동이 함께 높은 개발 도구예요.", work_list, "work"
     )
     sec3 = render_section_html(
-        "🎮 개인·취미 프로젝트", "집 PC에 깔거나 주말에 만져보기 좋은 프로젝트",
-        "#e5508c", fun_list, "fun"
+        "개인·취미 프로젝트", "집 PC에 깔거나 주말에 만져보기 좋은 프로젝트예요.", fun_list, "fun"
     )
 
     return f"""<!DOCTYPE html>
@@ -1094,20 +1112,20 @@ def generate_newsletter_html(surge_list, work_list, fun_list, config):
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GitHub 트렌드 매거진</title>
 </head>
-<body style="margin:0; padding:0; background:#f2f4f6; font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f2f4f6;">
-    <tr><td align="center" style="padding:24px 12px;">
+<body style="margin:0; padding:0; background:{GROUND}; font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:{GROUND};">
+    <tr><td align="center" style="padding:32px 16px 40px 16px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">
-        <tr><td style="padding:4px 2px 8px 2px;">
-          <div style="font-size:12px; color:#8b95a1;">{escape(date_str)} · {escape(sched_desc)} 발송</div>
-          <div style="margin-top:6px; font-size:24px; font-weight:800; color:#191f28;">GitHub 트렌드 매거진</div>
-          <div style="margin-top:6px; font-size:14px; color:#4e5968;">요즘 뜨는 레포, 일에 쓸 도구, 취미로 만질 프로젝트를 골랐어요.</div>
+        <tr><td style="padding:8px 0 0 0;">
+          <h1 style="margin:0; font-size:36px; line-height:1.15; font-weight:800; letter-spacing:-0.02em; color:{INK};">오늘의 GitHub 트렌드 {len(surge_list) + len(work_list) + len(fun_list)}선</h1>
+          <p style="margin:14px 0 0 0; font-size:17px; line-height:1.6; color:{INK};">{escape(date_str)}, 요즘 뜨는 레포와 일에 쓸 도구, 취미로 만질 오픈소스 프로젝트를 골랐어요.</p>
         </td></tr>
         {sec1}
         {sec2}
         {sec3}
-        <tr><td style="padding:16px 2px 0 2px; font-size:12px; color:#8b95a1;">
-          GitHub Trending과 GitHub Search API로 자동 수집했습니다.
+        <tr><td style="padding:40px 0 0 0;">
+          <p style="margin:0; font-size:20px; font-weight:800; color:{INK};">GitHub 트렌드 매거진</p>
+          <p style="margin:6px 0 0 0; font-size:14px; line-height:1.6; color:{INK_SOFT};">{escape(sched_desc)}에 GitHub Trending과 GitHub Search API에서 자동으로 골라 보내요.</p>
         </td></tr>
       </table>
     </td></tr>
